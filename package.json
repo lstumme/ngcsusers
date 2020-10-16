@@ -1,0 +1,25 @@
+{
+  "name": "ngcsusers",
+  "version": "1.0.0",
+  "description": "User Management Module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lstumme/ngcsusers.git"
+  },
+  "author": "Ludovic Stumme",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lstumme/ngcsusers/issues"
+  },
+  "homepage": "https://github.com/lstumme/ngcsusers#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.17.1",
+    "mongodb": "^3.6.2",
+    "mongoose": "^5.10.9"
+  }
+}
