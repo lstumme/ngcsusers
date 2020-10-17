@@ -5,8 +5,8 @@ exports.createUser = (req, res, next) => {
     const password = req.body.password;
     const email = req.body.email;
     userService.createUser({ login, password, email })
-        .then(user => {
-            res.status(201).json({ ...user, password: null });
+        .then(response => {
+            res.status(201).json({ ...response });
         })
         .catch(err => {
             if (!err.statusCode) {

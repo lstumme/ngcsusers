@@ -15,12 +15,16 @@ exports.createUser = async ({ login, password, email }) => {
                 error.statusCode = 409;
                 throw error;
             }
-            return bcrypt.hash(password)
+            return bcrypt.hash(password, 12)
                 .then(hashedPassword => {
                     const user = new User({ login, email, password: hashedPassword });
                     return user.save();
-                });
-        });
+                })
+                .then(user => {
+                    return { message: 'User created', userId: user._id };
+                })
+
+        })
     });
 };
 
