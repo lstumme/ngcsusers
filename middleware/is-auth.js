@@ -1,8 +1,14 @@
-const authcontroller = require('../controllers/authcontroller');
+const authservice = require('../services/authservice');
 
 module.exports = (req, res, next) => {
-    const token = req.get('Authorization').split(' ')[1];
-    const userId = authcontroller.decodeToken(token);
+    const authorization = req.get('Authorization');
+    if (!authorization) {
+        const error = new Error('Not authenticated.');
+        error.statusCode = 401;
+        throw error;
+    }
+    const token = authorization.split(' ')[1];
+    const userId = authservice.decodeToken(token);
     req.userId = userId;
     next();
 };
