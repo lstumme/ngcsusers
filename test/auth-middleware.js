@@ -38,6 +38,7 @@ describe('Auth Middleware', function () {
         sinon.stub(authservice, 'decodeToken');
         authservice.decodeToken.returns('abc');
         isauth(req, {}, () => { });
+        expect(authservice.decodeToken.called).to.be.true;
         expect(req).to.have.property('userId');
         expect(req).to.have.property('userId', 'abc');
         authservice.decodeToken.restore();
