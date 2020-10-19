@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs')
 const User = require('../model/user');
 
 
@@ -7,9 +6,11 @@ const User = require('../model/user');
 // };
 
 exports.getUser = async ({ userId }) => {
+    console.log(userId);
     return User.findOne({ _id: userId }).then(user => {
+        console.log(user);
         if (!user) {
-            const error = new Error('Could not find user.')
+            const error = new Error('User not found.')
             error.statusCode = 404;
             throw error;
         }
