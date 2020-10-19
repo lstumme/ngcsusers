@@ -9,6 +9,6 @@ module.exports = (req, res, next) => {
     }
     const token = authorization.split(' ')[1];
     const userId = authservice.decodeToken(token);
-    req.userId = userId;
+    req.authUserId = userId;
     next();
 };

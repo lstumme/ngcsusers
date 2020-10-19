@@ -4,7 +4,7 @@
   "description": "User Management Module",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "nyc mocha"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,8 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^8.2.0",
+    "mongodb-memory-server": "^6.9.2",
+    "nyc": "^15.1.0",
     "sinon": "^9.2.0"
   }
 }

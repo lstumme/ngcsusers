@@ -39,8 +39,8 @@ describe('Auth Middleware', function () {
         authservice.decodeToken.returns('abc');
         isauth(req, {}, () => { });
         expect(authservice.decodeToken.called).to.be.true;
-        expect(req).to.have.property('userId');
-        expect(req).to.have.property('userId', 'abc');
+        expect(req).to.have.property('authUserId');
+        expect(req).to.have.property('authUserId', 'abc');
         authservice.decodeToken.restore();
     });
 });

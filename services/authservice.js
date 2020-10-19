@@ -7,10 +7,10 @@ const secretpassword = 'secretPassword';
 
 exports.signin = async ({ login, password }) => {
     let loadedUser;
-    User.findOne({ login })
+    return User.findOne({ login })
         .then(user => {
             if (!user) {
-                const error = new Error("User not found");
+                const error = new Error('User not found');
                 error.statusCode = 401;   // not authenticated
                 throw error;
             }
@@ -19,7 +19,7 @@ exports.signin = async ({ login, password }) => {
         })
         .then(isEqual => {
             if (!isEqual) {
-                const error = new Error("Wrong password");
+                const error = new Error('Wrong password');
                 error.statusCode = 401;
                 throw error;
             }
@@ -30,6 +30,11 @@ exports.signin = async ({ login, password }) => {
 
 exports.decodeToken = ({ token }) => {
     let decodedToken;
+    if (!token) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
     try {
         decodedToken = jwt.verify(token, secretpassword);
     } catch (err) {
@@ -41,5 +46,5 @@ exports.decodeToken = ({ token }) => {
         error.statusCode = 401;
         throw error;
     }
-    return decodedToken.userId;
+    return { userId: decodedToken.userId.toString() };
 };
