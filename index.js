@@ -1,6 +1,8 @@
-exports.User = require('./model/user');
-exports.UserRoutes = require('./routes/userroutes');
-exports.AuthRoutes = require('./routes/authroutes');
-exports.isAuth = require('./middleware/is-auth');
 
+module.exports = {
+    User: require('./model/user'),
+    UserRoutes: require('./routes/userroutes'),
+    AuthRoutes: require('./routes/authroutes'),
+    isAuth: require('./middleware/is-auth'),
+};
 
