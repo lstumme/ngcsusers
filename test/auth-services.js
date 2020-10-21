@@ -135,4 +135,51 @@ describe('Auth Controller', function () {
                 });
         });
     });
+
+    describe('#updatePassword function', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            sinon.stub(bcrypt, 'hash');
+
+            const registeredUser = new User({
+                login: 'registeredUser',
+                password: 'password',
+                email: 'user@user.com'
+            });
+            await registeredUser.save();
+        });
+
+        afterEach(async () => {
+            bcrypt.hash.restore();
+            await dbHandler.clearDatabase();
+        });
+
+
+        it('should update user password', function (done) {
+            bcrypt.hash.returns(new Promise((resolve, reject) => {
+                return resolve('encodedPassword');
+            }));
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const userId = user._id.toString();
+                    const password = 'newPassword';
+                    authservice.updatePassword({ userId, password })
+                        .then(savedUser => {
+                            expect(savedUser).to.have.property('password', 'encodedPassword');
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('UpdateUserPassword failed.')
+                })
+        });
+    });
 });

@@ -1,4 +1,4 @@
-const { expect, should } = require('chai');
+const { expect, should, assert } = require('chai');
 const sinon = require('sinon');
 
 const authcontroller = require('../controllers/authcontroller');
@@ -79,7 +79,7 @@ describe('Auth Controller', function () {
             });
         });
 
-        it('should call next(err) adding default statusCode', function (done) {
+        it('should call next(err) adding default statusCode on process error', function (done) {
             const req = {
                 body: {
                     login: 'userlogin',
@@ -87,7 +87,7 @@ describe('Auth Controller', function () {
                 }
             };
             authservice.signin.returns(new Promise((resolve, reject) => {
-                throw new Error('Udefined Error');
+                throw new Error('Undefined Error');
             }));
             let error = null;
             const next = (err) => {
@@ -108,7 +108,7 @@ describe('Auth Controller', function () {
                 }
             };
             authservice.signin.returns(new Promise((resolve, reject) => {
-                const error = new Error('Udefined Error');
+                const error = new Error('Undefined Error');
                 error.statusCode = 400;
                 throw error;
             }));
@@ -122,5 +122,136 @@ describe('Auth Controller', function () {
                 done();
             });
         });
+    });
+
+    describe('#updatePassword function', function () {
+        beforeEach(function () {
+            sinon.stub(authservice, 'updatePassword');
+        });
+
+        afterEach(function () {
+            authservice.updatePassword.restore();
+        });
+
+        it('should throw an error if password is not specified', function (done) {
+            const req = {
+                auth: {
+                    userId: 'abcd'
+                },
+                body: {}
+            }
+            authcontroller.updatePassword(req, {}, () => { })
+                .then(response => {
+                    assert.fail('updatePassword failed');
+                })
+                .catch(err => {
+                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
+                    done();
+                });
+        });
+
+        it('should call next(err) adding default statusCode on process error', function (done) {
+            const req = {
+                auth: {
+                    userId: 'abcd'
+                },
+                body: {
+                    password: 'newpassword'
+                }
+            };
+            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+                throw new Error('Undefined Error');
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            authcontroller.updatePassword(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should call next(err) keeping specified statusCode', function (done) {
+            const req = {
+                auth: {
+                    userId: 'abcd'
+                },
+                body: {
+                    password: 'newpassword'
+                }
+            };
+            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+                const error = new Error('Undefined Error');
+                error.statusCode = 400;
+                throw error;
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            authcontroller.updatePassword(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('statusCode', 400);
+                done();
+            });
+        });
+
+        it('should raise an error if process failed', function (done) {
+            const req = {
+                auth: {
+                    userId: 'abcd'
+                },
+                body: {
+                    password: 'newpassword'
+                }
+            };
+            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+                resolve(false);
+            }));
+            let error = null;
+            const next = (err) => {
+                error = err;
+            }
+            authcontroller.updatePassword(req, {}, next).then(result => {
+                expect(error).to.not.be.null;
+                expect(error).to.have.property('message', 'Server Error')
+                expect(error).to.have.property('statusCode', 500);
+                done();
+            });
+        });
+
+        it('should return success ', function (done) {
+            const req = {
+                auth: {
+                    userId: 'abcd'
+                },
+                body: {
+                    password: 'newpassword'
+                }
+            };
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+                resolve(true);
+            }));
+            authcontroller.updatePassword(req, res, () => { }).then(result => {
+                expect(res).to.have.property('statusCode', 200);
+                expect(result).to.be.true;
+                done();
+            });
+        });
+
     });
 });

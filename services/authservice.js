@@ -1,6 +1,5 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const user = require('../model/user');
 const User = require('../model/user');
 
 const secretpassword = 'secretPassword';
@@ -47,4 +46,15 @@ exports.decodeToken = ({ token }) => {
         throw error;
     }
     return { userId: decodedToken.userId.toString() };
+};
+
+exports.updatePassword = async ({ userId, password }) => {
+    return bcrypt.hash(password, 12)
+        .then(hashedPassword => {
+            return User.findOne({ _id: userId })
+                .then(user => {
+                    user.password = hashedPassword;
+                    return user.save();
+                })
+        })
 };

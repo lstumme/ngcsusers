@@ -22,3 +22,27 @@ exports.login = async (req, res, next) => {
         });
 };
 
+exports.updatePassword = async (req, res, next) => {
+    const userId = req.auth.userId;
+    const password = req.body.password;
+    if (!password) {
+        const error = new Error('Bad arguments.');
+        error.statusCode = 400;
+        throw error;
+    }
+    return authservices.updatePassword({ userId, password })
+        .then(success => {
+            if (!success) {
+                throw new Error('Server Error');
+            }
+            res.status(200).json();
+            return success;
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
+}
+
