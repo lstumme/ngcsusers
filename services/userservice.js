@@ -1,9 +1,8 @@
 const User = require('../model/user');
 
 
-// exports.getUsers = async () => {
-//     return User.find();
-// };
+exports.getUsers = async ({ page, perPage }) => {
+};
 
 exports.getUser = async ({ userId }) => {
     return User.findOne({ _id: userId }).then(user => {
