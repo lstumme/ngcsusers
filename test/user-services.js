@@ -7,7 +7,7 @@ const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
 describe('User Controller', function () {
-    describe('#decodeToken', function () {
+    describe('#getUser', function () {
         let registeredUser;
         before(async () => {
             await dbHandler.connect();
