@@ -2,7 +2,7 @@ const { expect, should, assert } = require('chai');
 const sinon = require('sinon');
 const { ObjectId } = require('mongodb');
 
-const userservice = require('../services/userservice');
+const userServices = require('../services/userservices');
 const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
@@ -31,7 +31,7 @@ describe('User Controller', function () {
         });
 
         it('should throw an error if User not found', function (done) {
-            userservice.getUser({ userId: ObjectId().toString() })
+            userServices.getUser({ userId: ObjectId().toString() })
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -43,7 +43,7 @@ describe('User Controller', function () {
         });
 
         it('should return a user object if user found', function (done) {
-            userservice.getUser({ userId: registeredUser._id.toString() })
+            userServices.getUser({ userId: registeredUser._id.toString() })
                 .then(result => {
                     expect(result).to.have.property('_id');
                     expect(result._id.toString()).to.equal(registeredUser._id.toString());
@@ -83,7 +83,7 @@ describe('User Controller', function () {
         });
 
         it('should throw an error if range out of bounds', function (done) {
-            userservice.getUsers({ page: 3, perPage: 10 })
+            userServices.getUsers({ page: 3, perPage: 10 })
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -96,7 +96,7 @@ describe('User Controller', function () {
 
         it('should return an object contianing the required data and the number of pages', function (done) {
             const perPage = 10;
-            userservice.getUsers({ page: 1, perPage: perPage })
+            userServices.getUsers({ page: 1, perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 2);
                     expect(result).to.have.property('users').to.have.lengthOf(perPage);
@@ -114,7 +114,7 @@ describe('User Controller', function () {
 
         it('should return an object contianing the required data and the number of pages 2', function (done) {
             const perPage = 7;
-            userservice.getUsers({ page: 1, perPage: perPage })
+            userServices.getUsers({ page: 1, perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 3);
                     expect(result).to.have.property('users').to.have.lengthOf(perPage);

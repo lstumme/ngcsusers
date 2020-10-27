@@ -3,8 +3,8 @@ const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-const { decodeToken } = require('../services/authservice');
-const authservice = require('../services/authservice');
+const { decodeToken } = require('../services/authservices');
+const authServices = require('../services/authservices');
 const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
@@ -89,7 +89,7 @@ describe('Auth Controller', function () {
 
         it('should throw an error if User not found', function (done) {
             const params = { login: 'unknownUser', password: 'password' };
-            authservice.signin(params)
+            authServices.signin(params)
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -105,7 +105,7 @@ describe('Auth Controller', function () {
             bcrypt.compare.returns(new Promise((resolve, reject) => {
                 return resolve(false);
             }));
-            authservice.signin(params)
+            authServices.signin(params)
                 .then(result => {
                     assert.fail('Error');
                     done();
@@ -123,7 +123,7 @@ describe('Auth Controller', function () {
                 return resolve(true);
             }));
             jwt.sign.returns('encryptedToken');
-            authservice.signin(params)
+            authServices.signin(params)
                 .then(result => {
                     expect(result).to.have.property('token', 'encryptedToken');
                     expect(result).to.have.property('userId');
@@ -170,7 +170,7 @@ describe('Auth Controller', function () {
                 .then(user => {
                     const userId = user._id.toString();
                     const password = 'newPassword';
-                    authservice.updatePassword({ userId, password })
+                    authServices.updatePassword({ userId, password })
                         .then(savedUser => {
                             expect(savedUser).to.have.property('password', 'encodedPassword');
                             done();

@@ -1,18 +1,18 @@
-const { expect, should, assert } = require('chai');
+const { expect, assert } = require('chai');
 const sinon = require('sinon');
 
 const authcontroller = require('../controllers/authcontroller');
 const { login } = require('../controllers/authcontroller');
-const authservice = require('../services/authservice');
+const authServices = require('../services/authservices');
 
 describe('Auth Controller', function () {
     describe('#login function', function () {
         beforeEach(function () {
-            sinon.stub(authservice, 'signin');
+            sinon.stub(authServices, 'signin');
         });
 
         afterEach(function () {
-            authservice.signin.restore();
+            authServices.signin.restore();
         });
 
         it('should throw an error if login is not specified', function (done) {
@@ -23,7 +23,7 @@ describe('Auth Controller', function () {
             }
             authcontroller.login(req, {}, () => { })
                 .then(response => {
-                    expect(true).to.be.false;
+                    assert.fail('login error');
                     done();
                 })
                 .catch(err => {
@@ -40,7 +40,7 @@ describe('Auth Controller', function () {
             }
             authcontroller.login(req, {}, () => { })
                 .then(response => {
-                    expect(true).to.be.false;
+                    assert.fail('login error');
                     done();
                 })
                 .catch(err => {
@@ -68,7 +68,7 @@ describe('Auth Controller', function () {
                     return this;
                 }
             };
-            authservice.signin.returns(new Promise((resolve, reject) => {
+            authServices.signin.returns(new Promise((resolve, reject) => {
                 resolve({ token: 'tokenValue', userId: 'userIdValue' });
             }));
             authcontroller.login(req, res, () => { }).then(result => {
@@ -86,7 +86,7 @@ describe('Auth Controller', function () {
                     password: 'password'
                 }
             };
-            authservice.signin.returns(new Promise((resolve, reject) => {
+            authServices.signin.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
             let error = null;
@@ -107,7 +107,7 @@ describe('Auth Controller', function () {
                     password: 'password'
                 }
             };
-            authservice.signin.returns(new Promise((resolve, reject) => {
+            authServices.signin.returns(new Promise((resolve, reject) => {
                 const error = new Error('Undefined Error');
                 error.statusCode = 400;
                 throw error;
@@ -126,11 +126,11 @@ describe('Auth Controller', function () {
 
     describe('#updatePassword function', function () {
         beforeEach(function () {
-            sinon.stub(authservice, 'updatePassword');
+            sinon.stub(authServices, 'updatePassword');
         });
 
         afterEach(function () {
-            authservice.updatePassword.restore();
+            authServices.updatePassword.restore();
         });
 
         it('should throw an error if password is not specified', function (done) {
@@ -159,7 +159,7 @@ describe('Auth Controller', function () {
                     password: 'newpassword'
                 }
             };
-            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+            authServices.updatePassword.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
             let error = null;
@@ -182,7 +182,7 @@ describe('Auth Controller', function () {
                     password: 'newpassword'
                 }
             };
-            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+            authServices.updatePassword.returns(new Promise((resolve, reject) => {
                 const error = new Error('Undefined Error');
                 error.statusCode = 400;
                 throw error;
@@ -207,7 +207,7 @@ describe('Auth Controller', function () {
                     password: 'newpassword'
                 }
             };
-            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+            authServices.updatePassword.returns(new Promise((resolve, reject) => {
                 resolve(false);
             }));
             let error = null;
@@ -243,7 +243,7 @@ describe('Auth Controller', function () {
                     return this;
                 }
             };
-            authservice.updatePassword.returns(new Promise((resolve, reject) => {
+            authServices.updatePassword.returns(new Promise((resolve, reject) => {
                 resolve(true);
             }));
             authcontroller.updatePassword(req, res, () => { }).then(result => {

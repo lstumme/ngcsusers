@@ -1,5 +1,5 @@
 const { response } = require('express');
-const authservices = require('../services/authservice');
+const authServices = require('../services/authservices');
 
 exports.login = async (req, res, next) => {
     const login = req.body.login;
@@ -9,7 +9,7 @@ exports.login = async (req, res, next) => {
         error.statusCode = 400;
         throw error;
     }
-    return authservices.signin({ login, password })
+    return authServices.signin({ login, password })
         .then(response => {
             res.status(200).json({ ...response });
             return response;
@@ -30,7 +30,7 @@ exports.updatePassword = async (req, res, next) => {
         error.statusCode = 400;
         throw error;
     }
-    return authservices.updatePassword({ userId, password })
+    return authServices.updatePassword({ userId, password })
         .then(success => {
             if (!success) {
                 throw new Error('Server Error');

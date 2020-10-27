@@ -1,4 +1,4 @@
-const authservice = require('../services/authservice');
+const authServices = require('../services/authservices');
 
 module.exports = (req, res, next) => {
     const authorization = req.get('Authorization');
@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
         throw error;
     }
     const token = authorization.split(' ')[1];
-    const userId = authservice.decodeToken(token);
+    const userId = authServices.decodeToken(token);
     req.auth = { userId: userId };
     next();
 };

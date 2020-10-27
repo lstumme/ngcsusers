@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const isauth = require('../middleware/is-auth');
-const authservice = require('../services/authservice');
+const authServices = require('../services/authservices');
 
 
 describe('Auth Middleware', function () {
@@ -35,12 +35,12 @@ describe('Auth Middleware', function () {
                 }
             }
         }
-        sinon.stub(authservice, 'decodeToken');
-        authservice.decodeToken.returns('abc');
+        sinon.stub(authServices, 'decodeToken');
+        authServices.decodeToken.returns('abc');
         isauth(req, {}, () => { });
-        expect(authservice.decodeToken.called).to.be.true;
+        expect(authServices.decodeToken.called).to.be.true;
         expect(req).to.have.property('auth');
         expect(req.auth).to.have.property('userId', 'abc');
-        authservice.decodeToken.restore();
+        authServices.decodeToken.restore();
     });
 });

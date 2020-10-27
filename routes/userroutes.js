@@ -1,6 +1,6 @@
 const express = require('express');
 const isauth = require('../middleware/is-auth');
-const userController = require('../controllers/usercontrollers');
+const userController = require('../controllers/usercontroller');
 
 
 const initRouter = () => {

@@ -1,4 +1,4 @@
-const userService = require('../services/userservice');
+const userService = require('../services/userservices');
 
 exports.getUsers = async (req, res, next) => {
     const page = req.body.page;

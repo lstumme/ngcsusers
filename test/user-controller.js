@@ -1,16 +1,16 @@
 const { expect, should, assert } = require('chai');
 const sinon = require('sinon');
-const usercontroller = require('../controllers/usercontrollers');
-const userservice = require('../services/userservice');
+const userController = require('../controllers/usercontroller');
+const userServices = require('../services/userservices');
 
 describe('User Controller', function () {
     describe("#getUser function", function () {
         beforeEach(function () {
-            sinon.stub(userservice, 'getUser');
+            sinon.stub(userServices, 'getUser');
         });
 
         afterEach(function () {
-            userservice.getUser.restore();
+            userServices.getUser.restore();
         });
 
         it('should throw an error if no userId specified', function (done) {
@@ -18,7 +18,7 @@ describe('User Controller', function () {
                 body: {
                 }
             }
-            usercontroller.getUser(req, {}, () => { })
+            userController.getUser(req, {}, () => { })
                 .then(response => {
                     assert.fail('Test process Error');
                     done();
@@ -47,11 +47,11 @@ describe('User Controller', function () {
                     return this;
                 }
             };
-            userservice.getUser.returns(new Promise((resolve, reject) => {
+            userServices.getUser.returns(new Promise((resolve, reject) => {
                 resolve({ userId: 'abc' });
             }));
 
-            usercontroller.getUser(req, res, () => { }).then(result => {
+            userController.getUser(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
                 expect(res.jsonObject).to.have.property('userId', 'abc');
                 done();
@@ -64,14 +64,14 @@ describe('User Controller', function () {
                     userId: 'abc',
                 }
             }
-            userservice.getUser.returns(new Promise((resolve, reject) => {
+            userServices.getUser.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
             let error = null;
             const next = (err) => {
                 error = err;
             };
-            usercontroller.getUser(req, {}, next).then(result => {
+            userController.getUser(req, {}, next).then(result => {
                 expect(error).to.not.be.null;
                 expect(error).to.have.property('statusCode', 500);
                 done();
@@ -84,7 +84,7 @@ describe('User Controller', function () {
                     userId: 'abc',
                 }
             }
-            userservice.getUser.returns(new Promise((resolve, reject) => {
+            userServices.getUser.returns(new Promise((resolve, reject) => {
                 const error = new Error('Udefined Error');
                 error.statusCode = 400;
                 throw error;
@@ -93,7 +93,7 @@ describe('User Controller', function () {
             const next = (err) => {
                 error = err;
             }
-            usercontroller.getUser(req, {}, next).then(result => {
+            userController.getUser(req, {}, next).then(result => {
                 expect(error).to.not.be.null;
                 expect(error).to.have.property('statusCode', 400);
                 done();
@@ -103,11 +103,11 @@ describe('User Controller', function () {
 
     describe("#getUsers function", function () {
         beforeEach(function () {
-            sinon.stub(userservice, 'getUsers');
+            sinon.stub(userServices, 'getUsers');
         });
 
         afterEach(function () {
-            userservice.getUsers.restore();
+            userServices.getUsers.restore();
         });
 
         it('should throw an error if no page specified', function (done) {
@@ -116,7 +116,7 @@ describe('User Controller', function () {
                     perPage: 20
                 }
             }
-            usercontroller.getUsers(req, {}, () => { })
+            userController.getUsers(req, {}, () => { })
                 .then(response => {
                     assert.fail('Test process Error');
                     done();
@@ -133,7 +133,7 @@ describe('User Controller', function () {
                     page: 1
                 }
             }
-            usercontroller.getUsers(req, {}, () => { })
+            userController.getUsers(req, {}, () => { })
                 .then(response => {
                     assert.fail('Test process Error');
                     done();
@@ -164,7 +164,7 @@ describe('User Controller', function () {
                     return this;
                 }
             };
-            userservice.getUsers.returns(new Promise((resolve, reject) => {
+            userServices.getUsers.returns(new Promise((resolve, reject) => {
                 resolve([
                     { userId: 'user1' },
                     { userId: 'user2' },
@@ -172,7 +172,7 @@ describe('User Controller', function () {
                 ]);
             }));
 
-            usercontroller.getUsers(req, res, () => { }).then(result => {
+            userController.getUsers(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
                 expect(res.jsonObject).to.have.lengthOf(3);
                 done();
@@ -186,14 +186,14 @@ describe('User Controller', function () {
                     perPage: 10
                 }
             }
-            userservice.getUsers.returns(new Promise((resolve, reject) => {
+            userServices.getUsers.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
             let error = null;
             const next = (err) => {
                 error = err;
             };
-            usercontroller.getUsers(req, {}, next).then(result => {
+            userController.getUsers(req, {}, next).then(result => {
                 expect(error).to.not.be.null;
                 expect(error).to.have.property('statusCode', 500);
                 done();
@@ -207,7 +207,7 @@ describe('User Controller', function () {
                     perPage: 10
                 }
             }
-            userservice.getUsers.returns(new Promise((resolve, reject) => {
+            userServices.getUsers.returns(new Promise((resolve, reject) => {
                 const error = new Error('Udefined Error');
                 error.statusCode = 400;
                 throw error;
@@ -216,7 +216,7 @@ describe('User Controller', function () {
             const next = (err) => {
                 error = err;
             }
-            usercontroller.getUsers(req, {}, next).then(result => {
+            userController.getUsers(req, {}, next).then(result => {
                 expect(error).to.not.be.null;
                 expect(error).to.have.property('statusCode', 400);
                 done();
