@@ -6,7 +6,7 @@ const userServices = require('../services/userservices');
 const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
-describe('User Controller', function () {
+describe('User Services', function () {
     describe('#getUser', function () {
         let registeredUser;
         before(async () => {
