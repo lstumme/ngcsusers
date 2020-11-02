@@ -35,8 +35,8 @@ exports.updatePassword = async (req, res, next) => {
             if (!success) {
                 throw new Error('Server Error');
             }
-            res.status(200).json();
-            return success;
+            res.status(200).json({ message: 'Password updated' });
+            return true;
         })
         .catch(err => {
             if (!err.statusCode) {

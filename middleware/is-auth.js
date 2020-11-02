@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
         throw error;
     }
     const token = authorization.split(' ')[1];
-    const userId = authServices.decodeToken(token);
+    const userId = authServices.decodeToken({ token }).userId;
     req.auth = { userId: userId };
     next();
 };

@@ -249,6 +249,7 @@ describe('Auth Controller', function () {
             }));
             authcontroller.updatePassword(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
+                expect(res.jsonObject).to.have.property('message', 'Password updated');
                 expect(result).to.be.true;
                 done();
             });
