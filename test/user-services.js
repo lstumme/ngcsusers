@@ -7,6 +7,265 @@ const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
 describe('User Services', function () {
+    describe('#createUser', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const user = new User({
+                login: 'registeredUser',
+                password: 'password',
+                email: 'user@user.com'
+            });
+            await user.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if a user with given login already exists', function (done) {
+            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com' };
+            userServices.createUser(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `User ${params.login} already exists`);
+                    expect(err).to.have.property('statusCode', 409);
+                    done();
+                })
+        });
+
+        it('should throw an error if a user with given email already exists', function (done) {
+            const params = { login: 'newUser', password: 'password', email: 'user@user.com' };
+            userServices.createUser(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `A user with email ${params.email} already exists`);
+                    expect(err).to.have.property('statusCode', 409);
+                    done();
+                })
+        });
+
+        it('should create a user', function (done) {
+            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com' };
+            userServices.createUser(params)
+                .then(result => {
+                    User.findOne({ 'login': params.login })
+                        .then(newUser => {
+                            if (!newUser) {
+                                assert.fail('User not created');
+                            }
+                            expect(newUser).to.have.property('login', params.login);
+                            expect(result).to.have.property('login', params.login);
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('UserService Error');
+                })
+        });
+
+    });
+    describe('#deleteUser', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const user = new User({
+                login: 'registeredUser',
+                password: 'password',
+                email: 'user@user.com'
+            });
+            await user.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if user to delete is not found', function (done) {
+            const id = new ObjectId();
+            const params = { userId: id.toString() };
+            userServices.deleteUser(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find user.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should delete user if user exists', function (done) {
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const params = { userId: user._id.toString() };
+                    userServices.deleteUser(params)
+                        .then(result => {
+                            User.countDocuments({}, function (err, count) {
+                                if (err) {
+                                    assert.fail('Database Error');
+                                }
+                                expect(count).to.equal(0);
+                                done();
+                            });
+                        })
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                })
+        });
+    });
+    describe('#updateUserDetails', function () {
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            const user = new User({
+                login: 'registeredUser',
+                password: 'password',
+                email: 'user@user.com'
+            });
+            await user.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should throw an error if user to update is not found', function (done) {
+            const id = new ObjectId();
+            const params = { userId: id.toString() };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    assert.fail('Error');
+                })
+                .catch(err => {
+                    expect(err).to.have.property('message', `Could not find user.`);
+                    expect(err).to.have.property('statusCode', 404);
+                    done();
+                })
+        });
+
+        it('should update User firstname if firstname is provided', function (done) {
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const params = { userId: user._id.toString(), firstname: 'UserFirstName' };
+                    userServices.updateUserDetails(params)
+                        .then(result => {
+                            expect(result).to.have.property('login', 'registeredUser');
+                            expect(result).to.have.property('firstname', params.firstname);
+                            User.findOne({ login: 'registeredUser' })
+                                .then(newUser => {
+                                    expect(newUser).to.have.property('firstname', params.firstname);
+                                    expect(newUser).to.have.property('lastname', undefined);
+                                    expect(newUser).to.have.property('avatar', undefined);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                });
+        })
+
+        it('should update User lastname if lastname is provided', function (done) {
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const params = { userId: user._id.toString(), lastname: 'UserLastName' };
+                    userServices.updateUserDetails(params)
+                        .then(result => {
+                            expect(result).to.have.property('login', 'registeredUser');
+                            expect(result).to.have.property('lastname', params.lastname);
+                            User.findOne({ login: 'registeredUser' })
+                                .then(newUser => {
+                                    expect(newUser).to.have.property('firstname', undefined);
+                                    expect(newUser).to.have.property('lastname', params.lastname);
+                                    expect(newUser).to.have.property('avatar', undefined);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should update User avatar if avatar is provided', function (done) {
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const params = { userId: user._id.toString(), avatar: 'UserAvatar' };
+                    userServices.updateUserDetails(params)
+                        .then(result => {
+                            expect(result).to.have.property('login', 'registeredUser');
+                            expect(result).to.have.property('avatar', params.avatar);
+                            User.findOne({ login: 'registeredUser' })
+                                .then(newUser => {
+                                    expect(newUser).to.have.property('firstname', undefined);
+                                    expect(newUser).to.have.property('lastname', undefined);
+                                    expect(newUser).to.have.property('avatar', params.avatar);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should update User details if everything is provided', function (done) {
+            User.findOne({ login: 'registeredUser' })
+                .then(user => {
+                    const params = { userId: user._id.toString(), firstname: 'UserFirstName', lastname: 'UserLastName', avatar: 'UserAvatar' };
+                    userServices.updateUserDetails(params)
+                        .then(result => {
+                            expect(result).to.have.property('login', 'registeredUser');
+                            expect(result).to.have.property('firstname', params.firstname);
+                            expect(result).to.have.property('lastname', params.lastname);
+                            expect(result).to.have.property('avatar', params.avatar);
+                            User.findOne({ login: 'registeredUser' })
+                                .then(newUser => {
+                                    expect(newUser).to.have.property('firstname', params.firstname);
+                                    expect(newUser).to.have.property('lastname', params.lastname);
+                                    expect(newUser).to.have.property('avatar', params.avatar);
+                                    done();
+                                })
+                        });
+                })
+                .catch(err => {
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+    });
+
     describe('#getUser', function () {
         let registeredUser;
         before(async () => {
