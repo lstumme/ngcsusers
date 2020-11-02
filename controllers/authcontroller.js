@@ -11,7 +11,7 @@ exports.login = async (req, res, next) => {
     }
     return authServices.signin({ login, password })
         .then(response => {
-            res.status(200).json({ ...response });
+            res.status(200).json({ message: 'Access granted', data: response });
             return response;
         })
         .catch(err => {

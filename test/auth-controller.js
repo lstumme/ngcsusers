@@ -73,8 +73,9 @@ describe('Auth Controller', function () {
             }));
             authcontroller.login(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('userId', 'userIdValue');
-                expect(res.jsonObject).to.have.property('token', 'tokenValue');
+                expect(res.jsonObject).to.have.property('message', 'Access granted');
+                expect(res.jsonObject.data).to.have.property('userId', 'userIdValue');
+                expect(res.jsonObject.data).to.have.property('token', 'tokenValue');
                 done();
             });
         });
