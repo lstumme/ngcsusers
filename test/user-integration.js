@@ -1,6 +1,6 @@
 const { expect } = require('chai');
+const { dbHandler } = require('ngcshelpers');
 const userController = require('../controllers/usercontroller')
-const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
 describe('User Integration', function () {

@@ -19,10 +19,13 @@ exports.createUser = async ({ login, password, email }) => {
                 .then(hashedPassword => {
                     const user = new User({ login, email, password: hashedPassword });
                     return user.save().then(u => {
-                        return { userId: u._id.toString(), email: u.email, login: u.login };
+                        return { 
+                            userId: u._id.toString(), 
+                            email: u.email, 
+                            login: u.login 
+                        };
                     });
                 })
-
         })
     });
 };

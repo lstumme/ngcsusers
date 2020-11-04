@@ -1,4 +1,3 @@
-const { response } = require('express');
 const authServices = require('../services/authservices');
 
 exports.login = async (req, res, next) => {

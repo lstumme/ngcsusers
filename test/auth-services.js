@@ -1,11 +1,11 @@
-const { expect, should, assert } = require('chai');
+const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { dbHandler } = require('ngcshelpers');
 
 const { decodeToken } = require('../services/authservices');
 const authServices = require('../services/authservices');
-const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
 describe('Auth Controller', function () {

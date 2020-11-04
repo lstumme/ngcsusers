@@ -1,9 +1,8 @@
 const { expect, should, assert } = require('chai');
-const sinon = require('sinon');
+const { dbHandler } = require('ngcshelpers');
 const { ObjectId } = require('mongodb');
 
 const userServices = require('../services/userservices');
-const dbHandler = require('./db-handler');
 const User = require('../model/user');
 
 describe('User Services', function () {

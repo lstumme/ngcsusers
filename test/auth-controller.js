@@ -2,7 +2,6 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 
 const authcontroller = require('../controllers/authcontroller');
-const { login } = require('../controllers/authcontroller');
 const authServices = require('../services/authservices');
 
 describe('Auth Controller', function () {
