@@ -273,23 +273,6 @@ describe('User Controller', function () {
                 });
         });
 
-        it('should throw an error if no user details parameter specified', function (done) {
-            const req = {
-                body: {
-                    userId: 'abc'
-                }
-            }
-            userController.updateUserDetails(req, {}, () => { })
-                .then(response => {
-                    assert.fail('updateUserDetails error');
-                    done();
-                })
-                .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
-                });
-        });
-
         it('should return an object if update succeed', function (done) {
             const req = {
                 body: {

@@ -1,6 +1,5 @@
 const userServices = require('../services/userservices');
 
-
 exports.createUser = async (req, res, next) => {
     const login = req.body.login;
     const password = req.body.password;
@@ -48,7 +47,7 @@ exports.updateUserDetails = async (req, res, next) => {
     const firstname = req.body.firstname;
     const lastname = req.body.lastname;
     const avatar = req.body.avatar;
-    if (!userId || (!firstname && !lastname && !avatar)) {
+    if (!userId ) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         throw error;

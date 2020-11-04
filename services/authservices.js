@@ -23,7 +23,10 @@ exports.signin = async ({ login, password }) => {
                 throw error;
             }
             const token = jwt.sign({ login: login, userId: loadedUser._id.toString() }, secretpassword, { expiresIn: '1h' });
-            return { token: token, userId: loadedUser._id.toString() };
+            return {
+                token: token,
+                userId: loadedUser._id.toString()
+            };
         })
 };
 
@@ -45,7 +48,9 @@ exports.decodeToken = ({ token }) => {
         error.statusCode = 401;
         throw error;
     }
-    return { userId: decodedToken.userId.toString() };
+    return {
+        userId: decodedToken.userId.toString()
+    };
 };
 
 exports.updatePassword = async ({ userId, password }) => {
@@ -54,7 +59,11 @@ exports.updatePassword = async ({ userId, password }) => {
             return User.findOne({ _id: userId })
                 .then(user => {
                     user.password = hashedPassword;
-                    return user.save();
+                    return user.save().then(u => {
+                        return {
+                            userId: u._id.toString()
+                        };
+                    })
                 })
         })
 };

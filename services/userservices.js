@@ -19,10 +19,10 @@ exports.createUser = async ({ login, password, email }) => {
                 .then(hashedPassword => {
                     const user = new User({ login, email, password: hashedPassword });
                     return user.save().then(u => {
-                        return { 
-                            userId: u._id.toString(), 
-                            email: u.email, 
-                            login: u.login 
+                        return {
+                            userId: u._id.toString(),
+                            email: u.email,
+                            login: u.login
                         };
                     });
                 })
@@ -78,10 +78,22 @@ exports.getUsers = async ({ page, perPage }) => {
                 throw error;
             }
             return User.find().skip((page - 1) * perPage).limit(perPage)
-                .select('login firstname lastname email avatar')
                 .then(result => {
+                    const res = [];
+                    for (let i = 0; i < result.length; i++) {
+                        const u = result[i];
+                        res.push({
+                            userId: u._id.toString,
+                            login: u.login,
+                            email: u.email,
+                            firstname: u.firstname,
+                            lastname: u.lastname,
+                            avatar: u.avatar
+                        })
+                    }
+
                     return {
-                        users: result,
+                        users: res,
                         pageCount: pageCount
                     };
 
@@ -98,7 +110,14 @@ exports.getUser = async ({ userId }) => {
                 error.statusCode = 404;
                 throw error;
             }
-            return user;
+            return {
+                userId: user._id.toString(),
+                login: user.login,
+                email: user.email,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                avatar: user.avatar
+            };
         });
 };
 

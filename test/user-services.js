@@ -303,14 +303,17 @@ describe('User Services', function () {
         it('should return a user object if user found', function (done) {
             userServices.getUser({ userId: registeredUser._id.toString() })
                 .then(result => {
-                    expect(result).to.have.property('_id');
-                    expect(result._id.toString()).to.equal(registeredUser._id.toString());
+                    expect(result).to.have.property('userId', registeredUser._id.toString());
+                    expect(result).to.haveOwnProperty('login');
+                    expect(result).to.haveOwnProperty('email');
+                    expect(result).to.haveOwnProperty('firstname');
+                    expect(result).to.haveOwnProperty('lastname');
+                    expect(result).to.haveOwnProperty('avatar');
                     expect(result).to.not.have.own.property('password');
                     done();
                 })
                 .catch(err => {
-                    assert.fail('Error');
-                    done();
+                    assert.fail(err.toString());
                 })
         });
     });

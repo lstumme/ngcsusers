@@ -8,7 +8,7 @@ const { decodeToken } = require('../services/authservices');
 const authServices = require('../services/authservices');
 const User = require('../model/user');
 
-describe('Auth Controller', function () {
+describe('Auth Services', function () {
     describe('#decodeToken', function () {
         beforeEach(function () {
             sinon.stub(jwt, 'verify');
@@ -172,7 +172,7 @@ describe('Auth Controller', function () {
                     const password = 'newPassword';
                     authServices.updatePassword({ userId, password })
                         .then(savedUser => {
-                            expect(savedUser).to.have.property('password', 'encodedPassword');
+                            expect(savedUser).to.have.property('userId', userId);
                             done();
                         })
                 })
