@@ -1,5 +1,5 @@
 const { expect, should, assert } = require('chai');
-const { dbHandler } = require('ngcshelpers');
+const { dbHandler } = require('ngcstesthelpers');
 const { ObjectId } = require('mongodb');
 
 const userServices = require('../services/userservices');

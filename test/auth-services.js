@@ -2,7 +2,7 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { dbHandler } = require('ngcshelpers');
+const { dbHandler } = require('ngcstesthelpers');
 
 const { decodeToken } = require('../services/authservices');
 const authServices = require('../services/authservices');
