@@ -463,7 +463,7 @@ describe('User Controller', function () {
 
         it('should throw an error if no page specified', function (done) {
             const req = {
-                body: {
+                query: {
                     perPage: 20
                 }
             }
@@ -480,7 +480,7 @@ describe('User Controller', function () {
 
         it('should throw an error if no perPage specified', function (done) {
             const req = {
-                body: {
+                query: {
                     page: 1
                 }
             }
@@ -498,7 +498,7 @@ describe('User Controller', function () {
 
         it('should return an array if request succeed', function (done) {
             const req = {
-                body: {
+                query: {
                     page: 1,
                     perPage: 10
                 }
@@ -532,7 +532,7 @@ describe('User Controller', function () {
 
         it('should call next(err) adding default statusCode if not specified', function (done) {
             const req = {
-                body: {
+                query: {
                     page: 1,
                     perPage: 10
                 }
@@ -553,7 +553,7 @@ describe('User Controller', function () {
 
         it('should call next(err) keeping specified statusCode', function (done) {
             const req = {
-                body: {
+                query: {
                     page: 1,
                     perPage: 10
                 }

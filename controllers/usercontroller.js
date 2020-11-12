@@ -66,8 +66,8 @@ exports.updateUserDetails = async (req, res, next) => {
 };
 
 exports.getUsers = async (req, res, next) => {
-    const page = req.body.page;
-    const perPage = req.body.perPage;
+    const page = req.query.page;
+    const perPage = req.query.perPage;
     if (!page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
