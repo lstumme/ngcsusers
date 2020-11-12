@@ -6,6 +6,7 @@ const userController = require('../controllers/usercontroller');
 const initRouter = () => {
     const router = express.Router();
     router.get('/user/:userId', isauth, userController.getUser);
+    router.get('/users', isauth, userController.getUsers);
     return router;
 }
 
