@@ -83,7 +83,7 @@ exports.getUsers = async ({ page, perPage }) => {
                     for (let i = 0; i < result.length; i++) {
                         const u = result[i];
                         res.push({
-                            userId: u._id.toString,
+                            userId: u._id.toString(),
                             login: u.login,
                             email: u.email,
                             firstname: u.firstname,
@@ -96,7 +96,6 @@ exports.getUsers = async ({ page, perPage }) => {
                         users: res,
                         pageCount: pageCount
                     };
-
                 })
         });
 };
