@@ -344,7 +344,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if range out of bounds', function (done) {
-            userServices.getUsers({ page: 3, perPage: 10 })
+            userServices.getUsers({ page: '3', perPage: '10' })
                 .then(result => {
                     assert.fail('Error');
                 })
@@ -356,7 +356,7 @@ describe('User Services', function () {
         });
 
         it('should return an object contianing the required data and the number of pages', function (done) {
-            const perPage = 10;
+            const perPage = '10';
             userServices.getUsers({ page: 1, perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 2);
@@ -374,8 +374,8 @@ describe('User Services', function () {
         });
 
         it('should return an object contianing the required data and the number of pages 2', function (done) {
-            const perPage = 7;
-            userServices.getUsers({ page: 1, perPage: perPage })
+            const perPage = '7';
+            userServices.getUsers({ page: '1', perPage: perPage })
                 .then(result => {
                     expect(result).to.have.property('pageCount', 3);
                     expect(result).to.have.property('users').to.have.lengthOf(perPage);

@@ -464,7 +464,7 @@ describe('User Controller', function () {
         it('should throw an error if no page specified', function (done) {
             const req = {
                 query: {
-                    perPage: 20
+                    perPage: '20'
                 }
             }
             userController.getUsers(req, {}, () => { })
@@ -481,7 +481,7 @@ describe('User Controller', function () {
         it('should throw an error if no perPage specified', function (done) {
             const req = {
                 query: {
-                    page: 1
+                    page: '1'
                 }
             }
             userController.getUsers(req, {}, () => { })
@@ -499,8 +499,8 @@ describe('User Controller', function () {
         it('should return an array if request succeed', function (done) {
             const req = {
                 query: {
-                    page: 1,
-                    perPage: 10
+                    page: '1',
+                    perPage: '10'
                 }
             }
             const res = {
@@ -533,8 +533,8 @@ describe('User Controller', function () {
         it('should call next(err) adding default statusCode if not specified', function (done) {
             const req = {
                 query: {
-                    page: 1,
-                    perPage: 10
+                    page: '1',
+                    perPage: '10'
                 }
             }
             userServices.getUsers.returns(new Promise((resolve, reject) => {
@@ -554,8 +554,8 @@ describe('User Controller', function () {
         it('should call next(err) keeping specified statusCode', function (done) {
             const req = {
                 query: {
-                    page: 1,
-                    perPage: 10
+                    page: '1',
+                    perPage: '10'
                 }
             }
             userServices.getUsers.returns(new Promise((resolve, reject) => {
