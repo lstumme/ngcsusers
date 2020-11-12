@@ -77,7 +77,7 @@ exports.getUsers = async ({ page, perPage }) => {
                 error.statusCode = 400;
                 throw error;
             }
-            return User.find().skip((page - 1) * perPage).limit(perPage)
+            return User.find().skip((page - 1) * perPage).limit(Number.parseInt(perPage))
                 .then(result => {
                     const res = [];
                     for (let i = 0; i < result.length; i++) {
