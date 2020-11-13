@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 
-const secretpassword = 'secretPassword';
+const secretpassword = process.env.SECRET_KEY;
 
 exports.signin = async ({ login, password }) => {
     let loadedUser;
