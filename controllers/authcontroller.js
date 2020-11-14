@@ -6,7 +6,7 @@ exports.login = async (req, res, next) => {
     if (!login || !password) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return authServices.signin({ login, password })
         .then(response => {
@@ -27,7 +27,7 @@ exports.updatePassword = async (req, res, next) => {
     if (!password) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return authServices.updatePassword({ userId, password })
         .then(success => {

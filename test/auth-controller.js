@@ -14,20 +14,23 @@ describe('Auth Controller', function () {
             authServices.signin.restore();
         });
 
-        it('should throw an error if login is not specified', function (done) {
+        it('should call next(err) if login is not specified', function (done) {
             const req = {
                 body: {
                     password: 'password'
                 }
             }
-            authcontroller.login(req, {}, () => { })
+            authcontroller.login(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                expect(err).to.have.property('message', 'Bad arguments.');
+                done();
+            })
                 .then(response => {
                     assert.fail('login error');
-                    done();
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown')
                 });
         });
 
@@ -37,14 +40,17 @@ describe('Auth Controller', function () {
                     login: 'login'
                 }
             }
-            authcontroller.login(req, {}, () => { })
+            authcontroller.login(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                expect(err).to.have.property('message', 'Bad arguments.');
+                done();
+            })
                 .then(response => {
                     assert.fail('login error');
-                    done();
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown')
                 });
         });
 
@@ -89,14 +95,15 @@ describe('Auth Controller', function () {
             authServices.signin.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            authcontroller.login(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+
+            authcontroller.login(req, {}, (err) => {
+                expect(err).to.not.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
+            }).then(result => {
+                assert.fail('Next not called');
+            }).catch(err => {
+                assert.fail('Error thrown');
             });
         });
 
@@ -112,14 +119,14 @@ describe('Auth Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            authcontroller.login(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            authcontroller.login(req, {}, (err) => {
+                expect(err).to.not.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
+            }).then(result => {
+                assert.fail('Next not called');
+            }).catch(err => {
+                assert.fail('Error thrown');
             });
         });
     });
@@ -133,20 +140,25 @@ describe('Auth Controller', function () {
             authServices.updatePassword.restore();
         });
 
-        it('should throw an error if password is not specified', function (done) {
+        it('should call next(err) if password is not specified', function (done) {
             const req = {
                 auth: {
                     userId: 'abcd'
                 },
                 body: {}
             }
-            authcontroller.updatePassword(req, {}, () => { })
+
+            authcontroller.updatePassword(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                expect(err).to.have.property('message', 'Bad arguments.');
+                done();
+            })
                 .then(response => {
-                    assert.fail('updatePassword failed');
+                    assert.fail('login error');
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown')
                 });
         });
 
@@ -159,17 +171,19 @@ describe('Auth Controller', function () {
                     password: 'newpassword'
                 }
             };
+
             authServices.updatePassword.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            authcontroller.updatePassword(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+
+            authcontroller.updatePassword(req, {}, (err) => {
+                expect(err).to.not.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
+            }).then(result => {
+                assert.fail('Next not called');
+            }).catch(err => {
+                assert.fail('Error thrown');
             });
         });
 
@@ -187,14 +201,14 @@ describe('Auth Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            authcontroller.updatePassword(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            authcontroller.updatePassword(req, {}, (err) => {
+                expect(err).to.not.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
+            }).then(result => {
+                assert.fail('Next not called');
+            }).catch(err => {
+                assert.fail('Error thrown');
             });
         });
 

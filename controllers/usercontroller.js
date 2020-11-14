@@ -7,7 +7,7 @@ exports.createUser = async (req, res, next) => {
     if (!login || !password || !email) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return userServices.createUser({ login, password, email })
         .then(response => {
@@ -27,7 +27,7 @@ exports.deleteUser = async (req, res, next) => {
     if (!userId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return userServices.deleteUser({ userId })
         .then(response => {
@@ -47,10 +47,10 @@ exports.updateUserDetails = async (req, res, next) => {
     const firstname = req.body.firstname;
     const lastname = req.body.lastname;
     const avatar = req.body.avatar;
-    if (!userId ) {
+    if (!userId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return userServices.updateUserDetails({ userId, firstname, lastname, avatar })
         .then(response => {
@@ -71,7 +71,7 @@ exports.getUsers = async (req, res, next) => {
     if (!page || !perPage) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
     return userServices.getUsers({ page, perPage })
         .then(response => {
@@ -91,7 +91,7 @@ exports.getUser = async (req, res, next) => {
     if (!userId) {
         const error = new Error('Bad arguments.');
         error.statusCode = 400;
-        throw error;
+        next(error);
     }
 
     return userServices.getUser({ userId })

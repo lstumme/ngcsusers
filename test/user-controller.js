@@ -13,41 +13,46 @@ describe('User Controller', function () {
             userServices.createUser.restore();
         });
 
-        it('should throw an error if login is not specified', function (done) {
+        it('should call next(err) if login is not specified', function (done) {
             const req = {
                 body: {
                     password: 'password',
                     email: 'email'
                 }
             }
-            userController.createUser(req, {}, () => { })
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('createUser error');
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
-        it('should throw an error if password is not specified', function (done) {
+        it('should call next(err) if password is not specified', function (done) {
             const req = {
                 body: {
                     login: 'userlogin',
                     email: 'email'
                 }
             }
-            userController.createUser(req, {}, () => { })
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('createUser Error');
-                    done();
+                    assert.fail('createUser error');
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
-        it('should throw an error if email is not specified', function (done) {
+        it('should call next(err) if email is not specified', function (done) {
             const req = {
                 body: {
                     login: 'userlogin',
@@ -55,14 +60,16 @@ describe('User Controller', function () {
                 }
             }
 
-            userController.createUser(req, {}, () => { })
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.failt('createUser error');
-                    done();
+                    assert.fail('createUser error');
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
@@ -110,15 +117,18 @@ describe('User Controller', function () {
             userServices.createUser.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            userController.createUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -134,15 +144,18 @@ describe('User Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            userController.createUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('createUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
     });
 
@@ -155,20 +168,22 @@ describe('User Controller', function () {
             userServices.deleteUser.restore();
         });
 
-        it('should throw an error if userId is not specified', function (done) {
+        it('should call next(err) if userId is not specified', function (done) {
             const req = {
                 body: {
                 }
             }
 
-            userController.deleteUser(req, {}, () => { })
+            userController.deleteUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('deleteUser error');
-                    done();
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
@@ -211,15 +226,17 @@ describe('User Controller', function () {
             userServices.deleteUser.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            userController.deleteUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            userController.deleteUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -233,15 +250,17 @@ describe('User Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            userController.deleteUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+            userController.deleteUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('deleteUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
     });
 
@@ -254,7 +273,7 @@ describe('User Controller', function () {
             userServices.updateUserDetails.restore();
         });
 
-        it('should throw an error if no userId specified', function (done) {
+        it('should call next(err) if no userId specified', function (done) {
             const req = {
                 body: {
                     firstame: 'firstName',
@@ -262,14 +281,17 @@ describe('User Controller', function () {
                     avatar: null
                 }
             }
-            userController.updateUserDetails(req, {}, () => { })
+
+            userController.updateUserDetails(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
                     assert.fail('updateUserDetails error');
-                    done();
                 })
                 .catch(err => {
-                    expect(err).to.be.an('error').to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
@@ -315,18 +337,22 @@ describe('User Controller', function () {
                     avatar: null
                 }
             }
+
             userServices.updateUserDetails.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            userController.updateUserDetails(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+
+            userController.updateUserDetails(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateUserDetails error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -343,15 +369,18 @@ describe('User Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            userController.updateUserDetails(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+
+            userController.updateUserDetails(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('updateUserDetails error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
     });
 
@@ -364,19 +393,22 @@ describe('User Controller', function () {
             userServices.getUser.restore();
         });
 
-        it('should throw an error if no userId specified', function (done) {
+        it('should call next(err) if no userId specified', function (done) {
             const req = {
                 body: {
                 }
             }
-            userController.getUser(req, {}, () => { })
+
+            userController.getUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getUser error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
@@ -418,15 +450,19 @@ describe('User Controller', function () {
             userServices.getUser.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            userController.getUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+
+
+            userController.getUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -440,15 +476,18 @@ describe('User Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            userController.getUser(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+
+            userController.getUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
     });
 
@@ -461,37 +500,41 @@ describe('User Controller', function () {
             userServices.getUsers.restore();
         });
 
-        it('should throw an error if no page specified', function (done) {
+        it('should call next(err) if no page specified', function (done) {
             const req = {
                 query: {
                     perPage: '20'
                 }
             }
-            userController.getUsers(req, {}, () => { })
+            userController.getUsers(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getUsers error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
-        it('should throw an error if no perPage specified', function (done) {
+        it('should call next(err) if no perPage specified', function (done) {
             const req = {
                 query: {
                     page: '1'
                 }
             }
-            userController.getUsers(req, {}, () => { })
+            userController.getUsers(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
                 .then(response => {
-                    assert.fail('Test process Error');
-                    done();
+                    assert.fail('getUsers error');
                 })
                 .catch(err => {
-                    expect(err).to.have.property('statusCode', 400);
-                    done();
+                    assert.fail('Error thrown');
                 });
         });
 
@@ -540,15 +583,17 @@ describe('User Controller', function () {
             userServices.getUsers.returns(new Promise((resolve, reject) => {
                 throw new Error('Undefined Error');
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            };
-            userController.getUsers(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 500);
+            userController.getUsers(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 500);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getUsers error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
         it('should call next(err) keeping specified statusCode', function (done) {
@@ -563,15 +608,18 @@ describe('User Controller', function () {
                 error.statusCode = 400;
                 throw error;
             }));
-            let error = null;
-            const next = (err) => {
-                error = err;
-            }
-            userController.getUsers(req, {}, next).then(result => {
-                expect(error).to.not.be.null;
-                expect(error).to.have.property('statusCode', 400);
+
+            userController.getUsers(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
                 done();
-            });
+            })
+                .then(response => {
+                    assert.fail('getUsers error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
         });
 
     });
