@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 
-const secretpassword = process.env.SECRET_KEY;
 
 exports.signin = async ({ login, password }) => {
     let loadedUser;
@@ -22,6 +21,7 @@ exports.signin = async ({ login, password }) => {
                 error.statusCode = 401;
                 throw error;
             }
+            const secretpassword = process.env.SECRET_KEY;
             const token = jwt.sign({ login: login, userId: loadedUser._id.toString() }, secretpassword, { expiresIn: '1h' });
             return {
                 token: token,
@@ -38,6 +38,7 @@ exports.decodeToken = ({ token }) => {
         throw error;
     }
     try {
+        const secretpassword = process.env.SECRET_KEY;
         decodedToken = jwt.verify(token, secretpassword);
     } catch (err) {
         err.statusCode = 500;
