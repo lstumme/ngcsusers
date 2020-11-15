@@ -4,9 +4,11 @@ const { ObjectId } = require('mongodb');
 
 const userServices = require('../services/userservices');
 const User = require('../model/user');
+const { Group } = require('ngcsgroups');
 
 describe('User Services', function () {
     describe('#createUser', function () {
+        let defaultGroup;
         before(async () => {
             await dbHandler.connect();
         });
@@ -16,10 +18,17 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
+            defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
+
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await user.save();
         });
@@ -29,7 +38,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given login already exists', function (done) {
-            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com' };
+            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com', role: defaultGroup._id };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -42,7 +51,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given email already exists', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'user@user.com' };
+            const params = { login: 'newUser', password: 'password', email: 'user@user.com', role: defaultGroup._id };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -55,7 +64,7 @@ describe('User Services', function () {
         });
 
         it('should create a user', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com' };
+            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com', role: defaultGroup._id };
             userServices.createUser(params)
                 .then(result => {
                     User.findOne({ 'login': params.login })
@@ -85,10 +94,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await user.save();
         });
@@ -142,10 +157,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await user.save();
         });
@@ -276,10 +297,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             registeredUser = await user.save();
         });
@@ -329,11 +356,17 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
             for (let i = 0; i < 20; i++) {
                 const user = new User({
                     login: 'user' + i,
                     password: 'password',
-                    email: 'user' + i + '@user.com'
+                    email: 'user' + i + '@user.com',
+                    role: defaultGroup._id
                 });
                 await user.save();
             }

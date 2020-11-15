@@ -2,10 +2,11 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const {dbHandler} = require('ngcstesthelpers');
+const { dbHandler } = require('ngcstesthelpers');
 const User = require('../model/user');
 const authcontroller = require('../controllers/authcontroller');
 const isauth = require('../middleware/is-auth');
+const { Group } = require('ngcsgroups');
 
 describe('Auth Integration', function () {
     describe('#login function', function () {
@@ -21,10 +22,17 @@ describe('Auth Integration', function () {
         beforeEach(async () => {
             sinon.stub(jwt, 'sign');
             sinon.stub(bcrypt, 'compare');
+            let userGroup = new Group({
+                name: 'group',
+                label: 'groupLabel'
+            });
+            userGroup = await userGroup.save();
+
             registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: userGroup._id
             });
             registeredUser = await registeredUser.save();
         });
@@ -83,10 +91,17 @@ describe('Auth Integration', function () {
         beforeEach(async () => {
             sinon.stub(bcrypt, 'hash');
 
+            let userGroup = new Group({
+                name: 'group',
+                label: 'groupLabel'
+            });
+            userGroup = await userGroup.save();
+
             registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: userGroup._id
             });
             registeredUser = await registeredUser.save();
         });

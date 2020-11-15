@@ -20,8 +20,9 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.6.2",
-    "mongoose": "^5.10.12",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.10.14",
+    "ngcsgroups": "git+https://github.com/lstumme/ngcsgroups.git",
     "ngcshelpers": "git+https://github.com/lstumme/ngcshelpers.git"
   },
   "devDependencies": {

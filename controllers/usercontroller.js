@@ -4,12 +4,13 @@ exports.createUser = async (req, res, next) => {
     const login = req.body.login;
     const password = req.body.password;
     const email = req.body.email;
-    if (!login || !password || !email) {
+    const role = req.body.role;
+    if (!login || !password || !email || !role) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         next(error);
     }
-    return userServices.createUser({ login, password, email })
+    return userServices.createUser({ login, password, email, role })
         .then(response => {
             res.status(201).json({ message: 'User created', data: response });
             return response;

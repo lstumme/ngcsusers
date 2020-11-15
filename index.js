@@ -6,6 +6,6 @@ module.exports = {
     UserServices: require('./services/userservices'),
     AuthRoutes: require('./routes/authroutes'),
     isAuth: require('./middleware/is-auth'),
-
+    initAdminDB: require('./config/initdb'),
 };
 

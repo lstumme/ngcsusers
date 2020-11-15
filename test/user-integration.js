@@ -1,10 +1,12 @@
 const { expect } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
+const { Group } = require('ngcsgroups');
 const userController = require('../controllers/usercontroller')
 const User = require('../model/user');
 
 describe('User Integration', function () {
     describe("#createUser function", function () {
+        let defaultGroup;
         before(async () => {
             await dbHandler.connect();
         });
@@ -17,12 +19,21 @@ describe('User Integration', function () {
             await dbHandler.clearDatabase();
         });
 
+        beforeEach(async () => {
+            defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
+        });
+
         it('should return an object if user creation succeed', function (done) {
             req = {
                 body: {
                     login: 'user1',
                     password: 'password',
-                    email: 'user@user.com'
+                    email: 'user@user.com',
+                    role: defaultGroup._id
                 }
             }
             const res = {
@@ -66,10 +77,17 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
+
             user1 = new User({
                 login: 'user1',
                 password: 'password',
-                email: 'user1@user.com'
+                email: 'user1@user.com',
+                role: defaultGroup._id
             });
             user1 = await user1.save();
         });
@@ -121,10 +139,17 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
+
             user = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await user.save();
         });

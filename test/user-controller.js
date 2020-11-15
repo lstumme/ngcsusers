@@ -17,7 +17,8 @@ describe('User Controller', function () {
             const req = {
                 body: {
                     password: 'password',
-                    email: 'email'
+                    email: 'email',
+                    role: 'groupId'
                 }
             }
             userController.createUser(req, {}, (err) => {
@@ -32,11 +33,13 @@ describe('User Controller', function () {
                     assert.fail('Error thrown');
                 });
         });
+
         it('should call next(err) if password is not specified', function (done) {
             const req = {
                 body: {
                     login: 'userlogin',
-                    email: 'email'
+                    email: 'email',
+                    role: 'groupId'
                 }
             }
             userController.createUser(req, {}, (err) => {
@@ -57,6 +60,7 @@ describe('User Controller', function () {
                 body: {
                     login: 'userlogin',
                     password: 'password',
+                    role: 'groupId'
                 }
             }
 
@@ -73,12 +77,37 @@ describe('User Controller', function () {
                 });
         });
 
+        it('should call next(err) if role is not specified', function (done) {
+            const req = {
+                body: {
+                    login: 'userlogin',
+                    password: 'password',
+                    email: 'email'
+                }
+            }
+
+            userController.createUser(req, {}, (err) => {
+                expect(err).not.to.be.null;
+                expect(err).to.have.property('statusCode', 400);
+                done();
+            })
+                .then(response => {
+                    assert.fail('createUser error');
+                })
+                .catch(err => {
+                    assert.fail('Error thrown');
+                });
+        });
+
+
+
         it('should return an object if user creation succeed', function (done) {
             req = {
                 body: {
                     login: 'userlogin',
                     password: 'password',
-                    email: 'email'
+                    email: 'email',
+                    role: 'groupId'                    
                 }
             }
             const res = {
@@ -111,7 +140,8 @@ describe('User Controller', function () {
                 body: {
                     login: 'userlogin',
                     password: 'password',
-                    email: 'email'
+                    email: 'email',
+                    role: 'groupId'
                 }
             };
             userServices.createUser.returns(new Promise((resolve, reject) => {
@@ -136,7 +166,8 @@ describe('User Controller', function () {
                 body: {
                     login: 'userlogin',
                     password: 'password',
-                    email: 'email'
+                    email: 'email',
+                    role: 'groupId'
                 }
             };
             userServices.createUser.returns(new Promise((resolve, reject) => {

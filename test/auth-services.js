@@ -7,6 +7,7 @@ const { dbHandler } = require('ngcstesthelpers');
 const { decodeToken } = require('../services/authservices');
 const authServices = require('../services/authservices');
 const User = require('../model/user');
+const { Group } = require('ngcsgroups');
 
 describe('Auth Services', function () {
     describe('#decodeToken', function () {
@@ -73,10 +74,17 @@ describe('Auth Services', function () {
         beforeEach(async () => {
             sinon.stub(jwt, 'sign');
             sinon.stub(bcrypt, 'compare');
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
+
             const registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await registeredUser.save();
         });
@@ -147,11 +155,17 @@ describe('Auth Services', function () {
 
         beforeEach(async () => {
             sinon.stub(bcrypt, 'hash');
+            let defaultGroup = new Group({
+                name: 'defaultGroup',
+                label: 'defaultLabel'
+            });
+            defaultGroup = await defaultGroup.save();
 
             const registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
-                email: 'user@user.com'
+                email: 'user@user.com',
+                role: defaultGroup._id
             });
             await registeredUser.save();
         });

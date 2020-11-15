@@ -1,7 +1,8 @@
 const User = require('../model/user');
 const bcrypt = require('bcryptjs');
+const { Group } = require('ngcsgroups');
 
-exports.createUser = async ({ login, password, email }) => {
+exports.createUser = async ({ login, password, email, role }) => {
     return User.findOne({ login }).then(existingUser => {
         if (existingUser) {
             const error = new Error(`User ${login} already exists`);
@@ -17,12 +18,13 @@ exports.createUser = async ({ login, password, email }) => {
             }
             return bcrypt.hash(password, 12)
                 .then(hashedPassword => {
-                    const user = new User({ login, email, password: hashedPassword });
+                    const user = new User({ login, email, password: hashedPassword, role: role });
                     return user.save().then(u => {
                         return {
                             userId: u._id.toString(),
                             email: u.email,
-                            login: u.login
+                            login: u.login,
+                            role: u.role
                         };
                     });
                 })
@@ -86,6 +88,7 @@ exports.getUsers = async ({ page, perPage }) => {
                             userId: u._id.toString(),
                             login: u.login,
                             email: u.email,
+                            role: u.role,
                             firstname: u.firstname,
                             lastname: u.lastname,
                             avatar: u.avatar
@@ -102,7 +105,7 @@ exports.getUsers = async ({ page, perPage }) => {
 
 exports.getUser = async ({ userId }) => {
     return User.findOne({ _id: userId })
-        .select('login firstname lastname email avatar')
+        .select('login firstname lastname email avatar role')
         .then(user => {
             if (!user) {
                 const error = new Error('User not found.')
@@ -113,6 +116,7 @@ exports.getUser = async ({ userId }) => {
                 userId: user._id.toString(),
                 login: user.login,
                 email: user.email,
+                role: user.role,
                 firstname: user.firstname,
                 lastname: user.lastname,
                 avatar: user.avatar
