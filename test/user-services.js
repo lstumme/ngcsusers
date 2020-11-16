@@ -458,4 +458,58 @@ describe('User Services', function () {
 
     });
 
+    describe('#findUser function', function () {
+        let registeredUser;
+        before(async () => {
+            await dbHandler.connect();
+        });
+
+        after(async () => {
+            await dbHandler.closeDatabase();
+        });
+
+        beforeEach(async () => {
+            let role = new Role({
+                name: 'role1',
+                label: 'role1Label'
+            });
+            role = await role.save();
+
+            registeredUser = new User({
+                login: 'registeredUser',
+                password: 'password',
+                email: 'user@user.com',
+                role: role._id.toString()
+            })
+            registeredUser = await registeredUser.save();
+        });
+
+        afterEach(async () => {
+            await dbHandler.clearDatabase();
+        });
+
+        it('should return null if User not found', function (done) {
+            userServices.findUser({ login: 'unknownUser' })
+                .then(result => {
+                    expect(result).to.be.null;
+                    done();
+                })
+        });
+
+        it('should return a user object if user found', function (done) {
+            userServices.findUser({ login: registeredUser.login })
+                .then(result => {
+                    expect(result).to.have.property('userId', registeredUser._id.toString());
+                    expect(result).to.have.property('login', registeredUser.login);
+                    expect(result).to.have.property('email', registeredUser.email);
+                    done();
+                })
+                .catch(err => {
+                    assert.fail(err.toString());
+                    done();
+                })
+        });
+
+    });
+
 });

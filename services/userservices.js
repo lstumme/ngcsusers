@@ -84,7 +84,7 @@ exports.getUsers = async ({ page, perPage }) => {
             return User.find().skip((page - 1) * perPage).limit(Number.parseInt(perPage))
                 .then(result => {
                     return {
-                        users: result.map(u => {return convertUser2Object(u);}),
+                        users: result.map(u => { return convertUser2Object(u); }),
                         pageCount: pageCount
                     };
                 })
@@ -104,4 +104,11 @@ exports.getUser = async ({ userId }) => {
         });
 };
 
+
+exports.findUser = async ({ login }) => {
+    return User.findOne({ login: login })
+        .then(user => {
+            return user ? convertUser2Object(user) : user;
+        })
+}
 
