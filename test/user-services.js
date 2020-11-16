@@ -4,7 +4,7 @@ const { ObjectId } = require('mongodb');
 
 const userServices = require('../services/userservices');
 const User = require('../model/user');
-const { Role } = require('ngcsroles');
+const { RoleServices } = require('ngcsroles');
 
 describe('User Services', function () {
     describe('#createUser', function () {
@@ -18,17 +18,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            defaultRole = new Role({
+            defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
             await user.save();
         });
@@ -38,7 +37,12 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given login already exists', function (done) {
-            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com', role: defaultRole._id };
+            const params = { 
+                login: 'registeredUser', 
+                password: 'password', 
+                email: 'notusedemail@user.com', 
+                role: defaultRole.roleId 
+            };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -51,7 +55,12 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given email already exists', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'user@user.com', role: defaultRole._id };
+            const params = { 
+                login: 'newUser', 
+                password: 'password', 
+                email: 'user@user.com', 
+                role: defaultRole.roleId
+            };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -64,7 +73,12 @@ describe('User Services', function () {
         });
 
         it('should create a user', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com', role: defaultRole._id };
+            const params = { 
+                login: 'newUser', 
+                password: 'password', 
+                email: 'newUser@user.com', 
+                role: defaultRole.roleId 
+            };
             userServices.createUser(params)
                 .then(result => {
                     User.findOne({ 'login': params.login })
@@ -94,16 +108,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultRole = new Role({
+            let defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
+
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
             await user.save();
         });
@@ -160,23 +174,21 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            defaultRole = new Role({
+            defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
-            newRole = new Role({
+            newRole = await RoleServices.createRole({
                 name: 'newRole',
                 label: 'newRoleLabel'
             });
-            newRole = await newRole.save()
 
             user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
             user = await user.save();
         });
@@ -262,18 +274,18 @@ describe('User Services', function () {
         it('should update User role if role is provided', function (done) {
             const params = {
                 userId: user._id.toString(),
-                role: newRole._id.toString()
+                role: newRole.roleId
             };
             userServices.updateUserDetails(params)
                 .then(result => {
                     expect(result).to.have.property('login', user.login);
-                    expect(result).to.have.property('role', newRole._id.toString());
+                    expect(result).to.have.property('role', newRole.roleId);
                     User.findOne({ login: user.login })
                         .then(newUser => {
                             expect(newUser).to.have.property('firstname', undefined);
                             expect(newUser).to.have.property('lastname', undefined);
                             expect(newUser).to.have.property('avatar', undefined);
-                            expect(newUser.role.toString()).to.equal(newRole._id.toString());
+                            expect(newUser.role.toString()).to.equal(newRole.roleId);
                             done();
                         })
                 })
@@ -290,7 +302,7 @@ describe('User Services', function () {
                 firstname: 'UserFirstName',
                 lastname: 'UserLastName',
                 avatar: 'UserAvatar',
-                role: newRole._id.toString()
+                role: newRole.roleId
             };
             userServices.updateUserDetails(params)
                 .then(result => {
@@ -304,7 +316,7 @@ describe('User Services', function () {
                             expect(newUser).to.have.property('firstname', params.firstname);
                             expect(newUser).to.have.property('lastname', params.lastname);
                             expect(newUser).to.have.property('avatar', params.avatar);
-                            expect(newUser.role.toString()).to.equal(newRole._id.toString());
+                            expect(newUser.role.toString()).to.equal(newRole.roleId);
                             done();
                         })
                 })
@@ -316,7 +328,6 @@ describe('User Services', function () {
         });
 
     });
-
     describe('#getUser', function () {
         let registeredUser;
         before(async () => {
@@ -328,16 +339,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultRole = new Role({
+            let defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
+
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
             registeredUser = await user.save();
         });
@@ -376,7 +387,6 @@ describe('User Services', function () {
                 })
         });
     });
-
     describe('#getUsers', function () {
         let registeredUser;
         before(async () => {
@@ -388,17 +398,17 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultRole = new Role({
+            let defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
+
             for (let i = 0; i < 20; i++) {
                 const user = new User({
                     login: 'user' + i,
                     password: 'password',
                     email: 'user' + i + '@user.com',
-                    role: defaultRole._id
+                    role: defaultRole.roleId
                 });
                 await user.save();
             }
@@ -469,17 +479,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let role = new Role({
+            let role = await RoleServices.createRole({
                 name: 'role1',
                 label: 'role1Label'
             });
-            role = await role.save();
 
             registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: role._id.toString()
+                role: role.roleId
             })
             registeredUser = await registeredUser.save();
         });

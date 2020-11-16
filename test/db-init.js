@@ -1,7 +1,6 @@
 const { expect, assert } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
 const { RoleServices } = require('ngcsroles');
-const { id2Strings } = require('ngcshelpers');
 const initdb = require('../config/initdb');
 
 describe('Databse Initialization', function () {

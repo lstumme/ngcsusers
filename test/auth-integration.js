@@ -3,14 +3,14 @@ const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { dbHandler } = require('ngcstesthelpers');
-const User = require('../model/user');
+const UserServices = require('../services/userservices');
 const authcontroller = require('../controllers/authcontroller');
 const isauth = require('../middleware/is-auth');
-const { Role } = require('ngcsroles');
+const { RoleServices } = require('ngcsroles');
 
 describe('Auth Integration', function () {
     describe('#login function', function () {
-        let registeredUser;
+        let registeredUser, userRole;
         before(async () => {
             await dbHandler.connect();
         });
@@ -22,19 +22,13 @@ describe('Auth Integration', function () {
         beforeEach(async () => {
             sinon.stub(jwt, 'sign');
             sinon.stub(bcrypt, 'compare');
-            let userRole = new Role({
-                name: 'role',
-                label: 'roleLabel'
-            });
-            userRole = await userRole.save();
-
-            registeredUser = new User({
+            userRole = await RoleServices.createRole({ name: 'role', label: 'roleLabel' });
+            registeredUser = await UserServices.createUser({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: userRole._id
+                role: userRole.roleId
             });
-            registeredUser = await registeredUser.save();
         });
 
         afterEach(async () => {
@@ -47,7 +41,7 @@ describe('Auth Integration', function () {
             const req = {
                 body: {
                     login: registeredUser.login,
-                    password: registeredUser.password
+                    password: 'password'
                 }
             };
             const res = {
@@ -69,17 +63,17 @@ describe('Auth Integration', function () {
             authcontroller.login(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
                 expect(res.jsonObject).to.have.property('message', 'Access granted');
-                expect(res.jsonObject.data).to.have.property('userId', registeredUser._id.toString());
+                expect(res.jsonObject.data).to.have.property('userId', registeredUser.userId);
                 expect(res.jsonObject.data).to.have.property('token', 'encryptedToken');
                 done();
-            });
+            })
         });
 
 
     });
 
     describe('#updatePassword function', function () {
-        let registeredUser;
+        let registeredUser, userRole;
         before(async () => {
             await dbHandler.connect();
         });
@@ -89,21 +83,14 @@ describe('Auth Integration', function () {
         });
 
         beforeEach(async () => {
-            sinon.stub(bcrypt, 'hash');
-
-            let userRole = new Role({
-                name: 'role',
-                label: 'roleLabel'
-            });
-            userRole = await userRole.save();
-
-            registeredUser = new User({
+            userRole = await RoleServices.createRole({ name: 'role', label: 'roleLabel' });
+            registeredUser = await UserServices.createUser({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: userRole._id
+                role: userRole.roleId
             });
-            registeredUser = await registeredUser.save();
+            sinon.stub(bcrypt, 'hash');
         });
 
         afterEach(async () => {
@@ -114,7 +101,7 @@ describe('Auth Integration', function () {
         it('should update user password', function (done) {
             const req = {
                 auth: {
-                    userId: registeredUser._id.toString()
+                    userId: registeredUser.userId
                 },
                 body: {
                     password: 'newpassword'
@@ -140,7 +127,10 @@ describe('Auth Integration', function () {
                 expect(res.jsonObject).to.have.property('message', 'Password updated');
                 expect(result).to.be.true;
                 done();
-            });
+            })
+                .catch(err => {
+                    console.log(err);
+                })
 
         });
     });

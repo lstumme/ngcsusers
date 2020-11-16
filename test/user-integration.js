@@ -1,8 +1,8 @@
 const { expect } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
-const { Role } = require('ngcsroles');
+const { RoleServices } = require('ngcsroles');
 const userController = require('../controllers/usercontroller')
-const User = require('../model/user');
+const UserServices = require('../services/userservices');
 
 describe('User Integration', function () {
     describe("#createUser function", function () {
@@ -20,11 +20,10 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            defaultRole = new Role({
+            defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
         });
 
         it('should return an object if user creation succeed', function (done) {
@@ -33,7 +32,7 @@ describe('User Integration', function () {
                     login: 'user1',
                     password: 'password',
                     email: 'user@user.com',
-                    role: defaultRole._id
+                    role: defaultRole.roleId
                 }
             }
             const res = {
@@ -52,11 +51,11 @@ describe('User Integration', function () {
             userController.createUser(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 201);
                 expect(res.jsonObject).to.have.property('message', 'User created');
-                User.findOne({ login: 'user1' })
+                UserServices.findUser({login: 'user1'})
                     .then(user => {
                         expect(user).not.to.be.null;
                         expect(user).not.to.be.undefined;
-                        expect(res.jsonObject.data).to.have.property('userId', user._id.toString());
+                        expect(res.jsonObject.data).to.have.property('userId', user.userId);
                         expect(res.jsonObject.data).to.have.property('email', req.body.email);
                         expect(res.jsonObject.data).to.have.property('login', req.body.login);
                         expect(res.jsonObject.password).to.be.undefined;
@@ -77,19 +76,17 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            let defaultRole = new Role({
+            let defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
-            user1 = new User({
+            user1 = await UserServices.createUser({
                 login: 'user1',
                 password: 'password',
                 email: 'user1@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
-            user1 = await user1.save();
         });
 
         afterEach(async () => {
@@ -99,7 +96,7 @@ describe('User Integration', function () {
         it('should return an object if user deletion succeed', function (done) {
             const req = {
                 body: {
-                    userId: user1._id
+                    userId: user1.userId
                 }
             }
             const res = {
@@ -118,8 +115,8 @@ describe('User Integration', function () {
             userController.deleteUser(req, res, () => { }).then(result => {
                 expect(res).to.have.property('statusCode', 200);
                 expect(res.jsonObject).to.have.property('message', 'User deleted');
-                expect(res.jsonObject.data).to.have.property('userId', user1._id.toString());
-                User.findOne({ login: user1.login })
+                expect(res.jsonObject.data).to.have.property('userId', user1.userId);
+                UserServices.findUser({login: user1.login})
                     .then(user => {
                         expect(user).to.be.null;
                         done();
@@ -139,25 +136,23 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            let defaultRole = new Role({
+            let defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
-            user = new User({
+            user = await UserServices.createUser({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
-            await user.save();
         });
 
         it('should return an object if update succeed', function (done) {
             const req = {
                 body: {
-                    userId: user._id.toString(),
+                    userId: user.userId,
                     firstame: 'firstName',
                     lastname: 'lastName',
                     avatar: 'avatar'

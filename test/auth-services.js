@@ -6,8 +6,8 @@ const { dbHandler } = require('ngcstesthelpers');
 
 const { decodeToken } = require('../services/authservices');
 const authServices = require('../services/authservices');
-const User = require('../model/user');
-const { Role } = require('ngcsroles');
+const UserServices = require('../services/userservices');
+const { RoleServices } = require('ngcsroles');
 
 describe('Auth Services', function () {
     describe('#decodeToken', function () {
@@ -63,6 +63,7 @@ describe('Auth Services', function () {
     });
 
     describe('#signin function', function () {
+        let defaultRole, registeredUser;
         before(async () => {
             await dbHandler.connect();
         });
@@ -74,19 +75,17 @@ describe('Auth Services', function () {
         beforeEach(async () => {
             sinon.stub(jwt, 'sign');
             sinon.stub(bcrypt, 'compare');
-            let defaultRole = new Role({
+            defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
-            const registeredUser = new User({
+            registeredUser = await UserServices.createUser({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
-            await registeredUser.save();
         });
 
         afterEach(async () => {
@@ -145,6 +144,7 @@ describe('Auth Services', function () {
     });
 
     describe('#updatePassword function', function () {
+        let defaultRole, registeredUser;
         before(async () => {
             await dbHandler.connect();
         });
@@ -154,20 +154,18 @@ describe('Auth Services', function () {
         });
 
         beforeEach(async () => {
-            sinon.stub(bcrypt, 'hash');
-            let defaultRole = new Role({
+            defaultRole = await RoleServices.createRole({
                 name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultRole = await defaultRole.save();
 
-            const registeredUser = new User({
+            registeredUser = await UserServices.createUser({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultRole._id
+                role: defaultRole.roleId
             });
-            await registeredUser.save();
+            sinon.stub(bcrypt, 'hash');
         });
 
         afterEach(async () => {
@@ -180,9 +178,9 @@ describe('Auth Services', function () {
             bcrypt.hash.returns(new Promise((resolve, reject) => {
                 return resolve('encodedPassword');
             }));
-            User.findOne({ login: 'registeredUser' })
+            UserServices.findUser({login: 'registeredUser'})
                 .then(user => {
-                    const userId = user._id.toString();
+                    const userId = user.userId;
                     const password = 'newPassword';
                     authServices.updatePassword({ userId, password })
                         .then(savedUser => {

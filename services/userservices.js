@@ -37,7 +37,7 @@ exports.createUser = async ({ login, password, email, role }) => {
                     });
                 })
         })
-    });
+    })
 };
 
 exports.deleteUser = async ({ userId }) => {
