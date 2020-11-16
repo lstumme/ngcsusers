@@ -1,12 +1,12 @@
 const { expect } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
 const userController = require('../controllers/usercontroller')
 const User = require('../model/user');
 
 describe('User Integration', function () {
     describe("#createUser function", function () {
-        let defaultGroup;
+        let defaultRole;
         before(async () => {
             await dbHandler.connect();
         });
@@ -20,11 +20,11 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            defaultGroup = new Group({
-                name: 'defaultGroup',
+            defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
         });
 
         it('should return an object if user creation succeed', function (done) {
@@ -33,7 +33,7 @@ describe('User Integration', function () {
                     login: 'user1',
                     password: 'password',
                     email: 'user@user.com',
-                    role: defaultGroup._id
+                    role: defaultRole._id
                 }
             }
             const res = {
@@ -77,17 +77,17 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            let defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
 
             user1 = new User({
                 login: 'user1',
                 password: 'password',
                 email: 'user1@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
             user1 = await user1.save();
         });
@@ -139,17 +139,17 @@ describe('User Integration', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            let defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
 
             user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
             await user.save();
         });

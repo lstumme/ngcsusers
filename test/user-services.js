@@ -4,11 +4,11 @@ const { ObjectId } = require('mongodb');
 
 const userServices = require('../services/userservices');
 const User = require('../model/user');
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
 
 describe('User Services', function () {
     describe('#createUser', function () {
-        let defaultGroup;
+        let defaultRole;
         before(async () => {
             await dbHandler.connect();
         });
@@ -18,17 +18,17 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            defaultGroup = new Group({
-                name: 'defaultGroup',
+            defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
 
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
             await user.save();
         });
@@ -38,7 +38,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given login already exists', function (done) {
-            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com', role: defaultGroup._id };
+            const params = { login: 'registeredUser', password: 'password', email: 'notusedemail@user.com', role: defaultRole._id };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -51,7 +51,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if a user with given email already exists', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'user@user.com', role: defaultGroup._id };
+            const params = { login: 'newUser', password: 'password', email: 'user@user.com', role: defaultRole._id };
             userServices.createUser(params)
                 .then(result => {
                     assert.fail('Error');
@@ -64,7 +64,7 @@ describe('User Services', function () {
         });
 
         it('should create a user', function (done) {
-            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com', role: defaultGroup._id };
+            const params = { login: 'newUser', password: 'password', email: 'newUser@user.com', role: defaultRole._id };
             userServices.createUser(params)
                 .then(result => {
                     User.findOne({ 'login': params.login })
@@ -94,16 +94,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            let defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
             await user.save();
         });
@@ -148,6 +148,9 @@ describe('User Services', function () {
         });
     });
     describe('#updateUserDetails', function () {
+        let newRole;
+        let defaultRole;
+        let user;
         before(async () => {
             await dbHandler.connect();
         });
@@ -157,18 +160,25 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
-            const user = new User({
+            defaultRole = await defaultRole.save();
+
+            newRole = new Role({
+                name: 'newRole',
+                label: 'newRoleLabel'
+            });
+            newRole = await newRole.save()
+
+            user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
-            await user.save();
+            user = await user.save();
         });
 
         afterEach(async () => {
@@ -176,8 +186,7 @@ describe('User Services', function () {
         });
 
         it('should throw an error if user to update is not found', function (done) {
-            const id = new ObjectId();
-            const params = { userId: id.toString() };
+            const params = { userId: (new ObjectId()).toString() };
             userServices.updateUserDetails(params)
                 .then(result => {
                     assert.fail('Error');
@@ -190,21 +199,18 @@ describe('User Services', function () {
         });
 
         it('should update User firstname if firstname is provided', function (done) {
-            User.findOne({ login: 'registeredUser' })
-                .then(user => {
-                    const params = { userId: user._id.toString(), firstname: 'UserFirstName' };
-                    userServices.updateUserDetails(params)
-                        .then(result => {
-                            expect(result).to.have.property('login', 'registeredUser');
-                            expect(result).to.have.property('firstname', params.firstname);
-                            User.findOne({ login: 'registeredUser' })
-                                .then(newUser => {
-                                    expect(newUser).to.have.property('firstname', params.firstname);
-                                    expect(newUser).to.have.property('lastname', undefined);
-                                    expect(newUser).to.have.property('avatar', undefined);
-                                    done();
-                                })
-                        });
+            const params = { userId: user._id.toString(), firstname: 'UserFirstName' };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    expect(result).to.have.property('login', 'registeredUser');
+                    expect(result).to.have.property('firstname', params.firstname);
+                    User.findOne({ login: 'registeredUser' })
+                        .then(newUser => {
+                            expect(newUser).to.have.property('firstname', params.firstname);
+                            expect(newUser).to.have.property('lastname', undefined);
+                            expect(newUser).to.have.property('avatar', undefined);
+                            done();
+                        })
                 })
                 .catch(err => {
                     console.log(err);
@@ -214,21 +220,18 @@ describe('User Services', function () {
         })
 
         it('should update User lastname if lastname is provided', function (done) {
-            User.findOne({ login: 'registeredUser' })
-                .then(user => {
-                    const params = { userId: user._id.toString(), lastname: 'UserLastName' };
-                    userServices.updateUserDetails(params)
-                        .then(result => {
-                            expect(result).to.have.property('login', 'registeredUser');
-                            expect(result).to.have.property('lastname', params.lastname);
-                            User.findOne({ login: 'registeredUser' })
-                                .then(newUser => {
-                                    expect(newUser).to.have.property('firstname', undefined);
-                                    expect(newUser).to.have.property('lastname', params.lastname);
-                                    expect(newUser).to.have.property('avatar', undefined);
-                                    done();
-                                })
-                        });
+            const params = { userId: user._id.toString(), lastname: 'UserLastName' };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    expect(result).to.have.property('login', 'registeredUser');
+                    expect(result).to.have.property('lastname', params.lastname);
+                    User.findOne({ login: user.login })
+                        .then(newUser => {
+                            expect(newUser).to.have.property('firstname', undefined);
+                            expect(newUser).to.have.property('lastname', params.lastname);
+                            expect(newUser).to.have.property('avatar', undefined);
+                            done();
+                        })
                 })
                 .catch(err => {
                     assert.fail('Error');
@@ -237,21 +240,18 @@ describe('User Services', function () {
         });
 
         it('should update User avatar if avatar is provided', function (done) {
-            User.findOne({ login: 'registeredUser' })
-                .then(user => {
-                    const params = { userId: user._id.toString(), avatar: 'UserAvatar' };
-                    userServices.updateUserDetails(params)
-                        .then(result => {
-                            expect(result).to.have.property('login', 'registeredUser');
-                            expect(result).to.have.property('avatar', params.avatar);
-                            User.findOne({ login: 'registeredUser' })
-                                .then(newUser => {
-                                    expect(newUser).to.have.property('firstname', undefined);
-                                    expect(newUser).to.have.property('lastname', undefined);
-                                    expect(newUser).to.have.property('avatar', params.avatar);
-                                    done();
-                                })
-                        });
+            const params = { userId: user._id.toString(), avatar: 'UserAvatar' };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    expect(result).to.have.property('login', user.login);
+                    expect(result).to.have.property('avatar', params.avatar);
+                    User.findOne({ login: user.login })
+                        .then(newUser => {
+                            expect(newUser).to.have.property('firstname', undefined);
+                            expect(newUser).to.have.property('lastname', undefined);
+                            expect(newUser).to.have.property('avatar', params.avatar);
+                            done();
+                        })
                 })
                 .catch(err => {
                     assert.fail('Error');
@@ -259,26 +259,57 @@ describe('User Services', function () {
                 });
         });
 
-        it('should update User details if everything is provided', function (done) {
-            User.findOne({ login: 'registeredUser' })
-                .then(user => {
-                    const params = { userId: user._id.toString(), firstname: 'UserFirstName', lastname: 'UserLastName', avatar: 'UserAvatar' };
-                    userServices.updateUserDetails(params)
-                        .then(result => {
-                            expect(result).to.have.property('login', 'registeredUser');
-                            expect(result).to.have.property('firstname', params.firstname);
-                            expect(result).to.have.property('lastname', params.lastname);
-                            expect(result).to.have.property('avatar', params.avatar);
-                            User.findOne({ login: 'registeredUser' })
-                                .then(newUser => {
-                                    expect(newUser).to.have.property('firstname', params.firstname);
-                                    expect(newUser).to.have.property('lastname', params.lastname);
-                                    expect(newUser).to.have.property('avatar', params.avatar);
-                                    done();
-                                })
-                        });
+        it('should update User role if role is provided', function (done) {
+            const params = {
+                userId: user._id.toString(),
+                role: newRole._id.toString()
+            };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    expect(result).to.have.property('login', user.login);
+                    expect(result).to.have.property('role', newRole._id.toString());
+                    User.findOne({ login: user.login })
+                        .then(newUser => {
+                            expect(newUser).to.have.property('firstname', undefined);
+                            expect(newUser).to.have.property('lastname', undefined);
+                            expect(newUser).to.have.property('avatar', undefined);
+                            expect(newUser.role.toString()).to.equal(newRole._id.toString());
+                            done();
+                        })
                 })
                 .catch(err => {
+                    console.log(err);
+                    assert.fail('Error');
+                    done();
+                });
+        });
+
+        it('should update User details if everything is provided', function (done) {
+            const params = {
+                userId: user._id.toString(),
+                firstname: 'UserFirstName',
+                lastname: 'UserLastName',
+                avatar: 'UserAvatar',
+                role: newRole._id.toString()
+            };
+            userServices.updateUserDetails(params)
+                .then(result => {
+                    expect(result).to.have.property('login', 'registeredUser');
+                    expect(result).to.have.property('firstname', params.firstname);
+                    expect(result).to.have.property('lastname', params.lastname);
+                    expect(result).to.have.property('avatar', params.avatar);
+                    expect(result).to.have.property('role', params.role);
+                    User.findOne({ login: 'registeredUser' })
+                        .then(newUser => {
+                            expect(newUser).to.have.property('firstname', params.firstname);
+                            expect(newUser).to.have.property('lastname', params.lastname);
+                            expect(newUser).to.have.property('avatar', params.avatar);
+                            expect(newUser.role.toString()).to.equal(newRole._id.toString());
+                            done();
+                        })
+                })
+                .catch(err => {
+                    console.log(err);
                     assert.fail('Error');
                     done();
                 });
@@ -297,16 +328,16 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            let defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
             const user = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: defaultGroup._id
+                role: defaultRole._id
             });
             registeredUser = await user.save();
         });
@@ -336,6 +367,7 @@ describe('User Services', function () {
                     expect(result).to.haveOwnProperty('firstname');
                     expect(result).to.haveOwnProperty('lastname');
                     expect(result).to.haveOwnProperty('avatar');
+                    expect(result).to.haveOwnProperty('role');
                     expect(result).to.not.have.own.property('password');
                     done();
                 })
@@ -356,17 +388,17 @@ describe('User Services', function () {
         });
 
         beforeEach(async () => {
-            let defaultGroup = new Group({
-                name: 'defaultGroup',
+            let defaultRole = new Role({
+                name: 'defaultRole',
                 label: 'defaultLabel'
             });
-            defaultGroup = await defaultGroup.save();
+            defaultRole = await defaultRole.save();
             for (let i = 0; i < 20; i++) {
                 const user = new User({
                     login: 'user' + i,
                     password: 'password',
                     email: 'user' + i + '@user.com',
-                    role: defaultGroup._id
+                    role: defaultRole._id
                 });
                 await user.save();
             }

@@ -48,12 +48,13 @@ exports.updateUserDetails = async (req, res, next) => {
     const firstname = req.body.firstname;
     const lastname = req.body.lastname;
     const avatar = req.body.avatar;
+    const role = req.body.role;
     if (!userId) {
         const error = new Error('Bad arguments');
         error.statusCode = 400;
         next(error);
     }
-    return userServices.updateUserDetails({ userId, firstname, lastname, avatar })
+    return userServices.updateUserDetails({ userId, firstname, lastname, avatar, role })
         .then(response => {
             res.status(200).json({ message: 'User updated', data: response });
             return response;

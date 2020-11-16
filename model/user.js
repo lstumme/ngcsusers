@@ -4,7 +4,7 @@ const UserSchema = new mongoose.Schema({
     login: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     email: { type: String, required: true },
-    role: { type: mongoose.ObjectId, ref: 'Group', required: true },
+    role: { type: mongoose.ObjectId, ref: 'Role', required: true },
     creationDate: { type: Date, default: Date.now },
     firstname: { type: String, trim: true },
     lastname: { type: String, trim: true },

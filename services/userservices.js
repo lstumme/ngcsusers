@@ -1,6 +1,19 @@
 const User = require('../model/user');
 const bcrypt = require('bcryptjs');
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
+
+const convertUser2Object = u => {
+    return {
+        userId: u._id.toString(),
+        login: u.login,
+        email: u.email,
+        firstname: u.firstname,
+        lastname: u.lastname,
+        avatar: u.avatar,
+        role: u.role.toString()
+    }
+}
+
 
 exports.createUser = async ({ login, password, email, role }) => {
     return User.findOne({ login }).then(existingUser => {
@@ -20,12 +33,7 @@ exports.createUser = async ({ login, password, email, role }) => {
                 .then(hashedPassword => {
                     const user = new User({ login, email, password: hashedPassword, role: role });
                     return user.save().then(u => {
-                        return {
-                            userId: u._id.toString(),
-                            email: u.email,
-                            login: u.login,
-                            role: u.role
-                        };
+                        return convertUser2Object(u);
                     });
                 })
         })
@@ -46,7 +54,7 @@ exports.deleteUser = async ({ userId }) => {
     });
 };
 
-exports.updateUserDetails = async ({ userId, firstname, lastname, avatar }) => {
+exports.updateUserDetails = async ({ userId, firstname, lastname, avatar, role }) => {
     return User.findOne({ _id: userId }).then(user => {
         if (!user) {
             const error = new Error('Could not find user.')
@@ -56,16 +64,10 @@ exports.updateUserDetails = async ({ userId, firstname, lastname, avatar }) => {
         if (firstname) user.firstname = firstname;
         if (lastname) user.lastname = lastname;
         if (avatar) user.avatar = avatar;
+        if (role) user.role = role;
         return user.save()
             .then(u => {
-                return {
-                    userId: u._id.toString(),
-                    login: u.login,
-                    email: u.email,
-                    firstname: u.firstname,
-                    lastname: u.lastname,
-                    avatar: u.avatar
-                }
+                return convertUser2Object(u);
             });
     });
 };
@@ -81,22 +83,8 @@ exports.getUsers = async ({ page, perPage }) => {
             }
             return User.find().skip((page - 1) * perPage).limit(Number.parseInt(perPage))
                 .then(result => {
-                    const res = [];
-                    for (let i = 0; i < result.length; i++) {
-                        const u = result[i];
-                        res.push({
-                            userId: u._id.toString(),
-                            login: u.login,
-                            email: u.email,
-                            role: u.role,
-                            firstname: u.firstname,
-                            lastname: u.lastname,
-                            avatar: u.avatar
-                        })
-                    }
-
                     return {
-                        users: res,
+                        users: result.map(u => {return convertUser2Object(u);}),
                         pageCount: pageCount
                     };
                 })
@@ -112,15 +100,7 @@ exports.getUser = async ({ userId }) => {
                 error.statusCode = 404;
                 throw error;
             }
-            return {
-                userId: user._id.toString(),
-                login: user.login,
-                email: user.email,
-                role: user.role,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                avatar: user.avatar
-            };
+            return convertUser2Object(user);
         });
 };
 

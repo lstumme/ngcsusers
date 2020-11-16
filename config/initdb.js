@@ -1,43 +1,48 @@
-const { Group, GroupServices } = require('ngcsgroups');
+const { Role, RoleServices } = require('ngcsroles');
+
+const usersRoleName = 'users';
+const usersLabelName = 'Utilisateur'
+const adminRoleName = 'administrators'
+const toolsRoleName = 'toolsmanagers';
 
 const initdb = async () => {
-    return Group.findOne({ name: 'users' })
-        .then(group => {
-            if (!group) {
-                return GroupServices.createGroup({ name: 'users', label: 'Utilisateurs' });
+    return RoleServices.findRole(usersRoleName)
+        .then(users => {
+            if(!users) {
+                return RoleServices.createGroup({name: usersRoleName, label: usersLabelName});
             }
-            return group;
+            return users;
         })
-        .then(group => {
-            return Group.findOne({ name: 'administrators' })
-                .then(adminGroup => {
-                    if (!adminGroup) {
-                        const error = new Error('Administrators group not found');
+        .then(users => {
+            RoleServices.findRole(adminRoleName)
+                .then(admins => {
+                    if(!admins) {
+                        const error = new Error(adminRoleName + ' role not found');
                         throw error;
                     }
-                    if (!adminGroup.groups.include(group._id.toString())) {
-                        return GroupServices.addGroupToGroup(adminGroup._id.toString(), group._id.toString())
+                    if(!admins.subRoles.include(users.roleId)) {
+                        return RoleServices.addSubRoleToRole({parentRoleId: admins.roleId, subRoleId: users.roleId})
                             .then(result => {
-                                return group;
-                            })
+                                return users;
+                            }) 
                     }
-                    return group;
+                    return users;
                 })
         })
-        .then(group => {
-            return Group.findOne({ name: 'toolsmanagers' })
-                .then(toolsGroup => {
-                    if (!toolsGroup) {
-                        const error = new Error('ToolsManagers group not found');
+        .then(users => {
+            RoleServices.findRole(toolsRoleName)
+                .then(admins => {
+                    if(!admins) {
+                        const error = new Error(toolsRoleName + ' role not found');
                         throw error;
                     }
-                    if (!toolsGroup.groups.include(group._id.toString())) {
-                        return GroupServices.addGroupToGroup(toolsGroup._id.toString(), group._id.toString())
+                    if(!admins.subRoles.include(users.roleId)) {
+                        return RoleServices.addSubRoleToRole({parentRoleId: admins.roleId, subRoleId: users.roleId})
                             .then(result => {
-                                return group;
-                            })
+                                return users;
+                            }) 
                     }
-                    return group;
+                    return users;
                 })
         })
 }

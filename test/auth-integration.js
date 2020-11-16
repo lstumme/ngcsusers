@@ -6,7 +6,7 @@ const { dbHandler } = require('ngcstesthelpers');
 const User = require('../model/user');
 const authcontroller = require('../controllers/authcontroller');
 const isauth = require('../middleware/is-auth');
-const { Group } = require('ngcsgroups');
+const { Role } = require('ngcsroles');
 
 describe('Auth Integration', function () {
     describe('#login function', function () {
@@ -22,17 +22,17 @@ describe('Auth Integration', function () {
         beforeEach(async () => {
             sinon.stub(jwt, 'sign');
             sinon.stub(bcrypt, 'compare');
-            let userGroup = new Group({
-                name: 'group',
-                label: 'groupLabel'
+            let userRole = new Role({
+                name: 'role',
+                label: 'roleLabel'
             });
-            userGroup = await userGroup.save();
+            userRole = await userRole.save();
 
             registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: userGroup._id
+                role: userRole._id
             });
             registeredUser = await registeredUser.save();
         });
@@ -91,17 +91,17 @@ describe('Auth Integration', function () {
         beforeEach(async () => {
             sinon.stub(bcrypt, 'hash');
 
-            let userGroup = new Group({
-                name: 'group',
-                label: 'groupLabel'
+            let userRole = new Role({
+                name: 'role',
+                label: 'roleLabel'
             });
-            userGroup = await userGroup.save();
+            userRole = await userRole.save();
 
             registeredUser = new User({
                 login: 'registeredUser',
                 password: 'password',
                 email: 'user@user.com',
-                role: userGroup._id
+                role: userRole._id
             });
             registeredUser = await registeredUser.save();
         });
