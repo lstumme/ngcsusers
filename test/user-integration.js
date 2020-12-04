@@ -1,40 +1,47 @@
-const { expect } = require('chai');
+const { expect, assert } = require('chai');
 const { dbHandler } = require('ngcstesthelpers');
-const { RoleServices } = require('ngcsroles');
-const userController = require('../controllers/usercontroller')
-const UserServices = require('../services/userservices');
+const { Role } = require('ngcsroles');
+const UserController = require('../controllers/usercontroller');
+const User = require('../model/user');
 
 describe('User Integration', function () {
-    describe("#createUser function", function () {
-        let defaultRole;
-        before(async () => {
-            await dbHandler.connect();
-        });
+describe('#createUser function', function () {
+		let defaultUser;
+		let defaultRole;
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-        beforeEach(async () => {
-            defaultRole = await RoleServices.createRole({
-                name: 'defaultRole',
-                label: 'defaultLabel'
-            });
-        });
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			
+		});
+		
+		it('should return an object if User creation succeed', function (done) {
+			const req = {
+				body: {
+					login: 'defaultLogin', 
+					password: 'defaultPassword', 
+					email: 'defaultEmail', 
+					role: defaultRole._id.toString(), 
+				}
+			};
 
-        it('should return an object if user creation succeed', function (done) {
-            req = {
-                body: {
-                    login: 'user1',
-                    password: 'password',
-                    email: 'user@user.com',
-                    role: defaultRole.roleId
-                }
-            }
             const res = {
                 statusCode: 0,
                 jsonObject: {},
@@ -48,55 +55,65 @@ describe('User Integration', function () {
                 }
             };
 
-            userController.createUser(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 201);
-                expect(res.jsonObject).to.have.property('message', 'User created');
-                UserServices.findUser({login: 'user1'})
-                    .then(user => {
-                        expect(user).not.to.be.null;
-                        expect(user).not.to.be.undefined;
-                        expect(res.jsonObject.data).to.have.property('userId', user.userId);
-                        expect(res.jsonObject.data).to.have.property('email', req.body.email);
-                        expect(res.jsonObject.data).to.have.property('login', req.body.login);
-                        expect(res.jsonObject.password).to.be.undefined;
-                        done();
-                    });
-            });
-        });
-    });
+			UserController.createUser(req, res, () => { })
+				.then(() => {
+	                expect(res).to.have.property('statusCode', 201);
+	                expect(res.jsonObject).to.have.property('message', 'User created');
+	                expect(res.jsonObject.data).to.have.ownProperty('userId');
+					expect(res.jsonObject.data).to.have.property('login', req.body.login); 
+					expect(res.jsonObject.data).to.have.property('email', req.body.email); 
+					expect(res.jsonObject.data).to.have.property('role', req.body.role); 
+					done();				
+				})
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});		
+		});
+	});
+	describe('#updateUser function', function () {
+	});
 
-    describe("#deleteUser function", function () {
-        let user1;
-        before(async () => {
-            await dbHandler.connect();
-        });
+	describe('#deleteUser function', function () {
+		let defaultUser;
+		let defaultRole;
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
 
-        beforeEach(async () => {
-            let defaultRole = await RoleServices.createRole({
-                name: 'defaultRole',
-                label: 'defaultLabel'
-            });
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
 
-            user1 = await UserServices.createUser({
-                login: 'user1',
-                password: 'password',
-                email: 'user1@user.com',
-                role: defaultRole.roleId
-            });
-        });
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			defaultUser = User({
+				login: 'defaultLogin',
+				password: 'defaultPassword',
+				email: 'defaultEmail',
+				role: defaultRole._id.toString(),
+			});
+			defaultUser = await defaultUser.save();
+			
+		});
 
-        afterEach(async () => {
-            await dbHandler.clearDatabase();
-        });
-
-        it('should return an object if user deletion succeed', function (done) {
+       it('should return a userId if User deletion succeed', function (done) {
             const req = {
                 body: {
-                    userId: user1.userId
+                    userId: defaultUser._id.toString(),
                 }
             }
             const res = {
@@ -112,50 +129,64 @@ describe('User Integration', function () {
                 }
             };
 
-            userController.deleteUser(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'User deleted');
-                expect(res.jsonObject.data).to.have.property('userId', user1.userId);
-                UserServices.findUser({login: user1.login})
-                    .then(user => {
-                        expect(user).to.be.null;
-                        done();
-                    })
-            });
-        });
-    });
-
-    describe("#updateUserDetails function", function () {
-        let user;
-        before(async () => {
-            await dbHandler.connect();
+            UserController.deleteUser(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('message', 'User deleted');
+	                expect(res.jsonObject.data).to.have.property('userId', req.body.userId)
+	                done();
+            	})
+				.catch(err => {
+					console.log(err);
+					done();				
+				});
         });
 
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
 
-        beforeEach(async () => {
-            let defaultRole = await RoleServices.createRole({
-                name: 'defaultRole',
-                label: 'defaultLabel'
-            });
+	});
 
-            user = await UserServices.createUser({
-                login: 'registeredUser',
-                password: 'password',
-                email: 'user@user.com',
-                role: defaultRole.roleId
-            });
-        });
+	describe('#getUsers function', function () {
+		let defaultUser;
+		let defaultRole;
 
-        it('should return an object if update succeed', function (done) {
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			
+			for (let i = 0; i < 20; i++) {
+				const user = new User({
+					login: 'Login_' + i,
+					password: 'Password_' + i,
+					email: 'Email_' + i,
+					role: defaultRole._id.toString(),
+				});
+				await user.save();
+			}			
+		});
+
+        it('should return an array if request succeed', function (done) {
             const req = {
-                body: {
-                    userId: user.userId,
-                    firstame: 'firstName',
-                    lastname: 'lastName',
-                    avatar: 'avatar'
+                query: {
+					page: '1',
+                    perPage: '10'
                 }
             }
             const res = {
@@ -171,16 +202,228 @@ describe('User Integration', function () {
                 }
             };
 
-            userController.updateUserDetails(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'User updated');
-                expect(res.jsonObject.data).to.have.property('userId', req.body.userId);
-                expect(res.jsonObject.data).to.have.property('login', user.login);
-                expect(res.jsonObject.data).to.have.property('firstname', req.body.firstname);
-                expect(res.jsonObject.data).to.have.property('lastname', req.body.lastname);
-                expect(res.jsonObject.data).to.have.property('avatar', req.body.avatar);
-                done();
-            });
+            UserController.getUsers(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject.users).to.have.lengthOf(10);
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
         });
-    });
+	});
+
+	describe('#getUser function', function () {
+		let defaultUser;
+		let defaultRole;
+
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			defaultUser = User({
+				login: 'defaultLogin',
+				password: 'defaultPassword',
+				email: 'defaultEmail',
+				role: defaultRole._id.toString(),
+			});
+			defaultUser = await defaultUser.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+                    userId: defaultUser._id.toString(),
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            UserController.getUser(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('userId', defaultUser._id.toString());
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+
+	});
+
+	describe('#findUserByLogin function', function () {
+		let defaultUser;
+		let defaultRole;
+
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			defaultUser = User({
+				login: 'defaultLogin',
+				password: 'defaultPassword',
+				email: 'defaultEmail',
+				role: defaultRole._id.toString(),
+			});
+			defaultUser = await defaultUser.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+					login: 'defaultLogin',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            UserController.findUserByLogin(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('userId', defaultUser._id.toString());
+					expect(res.jsonObject).to.have.property('login', 'defaultLogin');
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+	});
+
+	describe('#findUserByEmail function', function () {
+		let defaultUser;
+		let defaultRole;
+
+		before(async () => {
+			await dbHandler.connect();
+			await User.createIndexes();
+		});
+
+		after(async () => {
+			await dbHandler.closeDatabase();
+		});
+
+		afterEach(async () => {
+			await dbHandler.clearDatabase();
+		});
+		
+		beforeEach(async () => {
+			defaultRole = Role({
+				name: 'defaultName',
+				label: 'defaultLabel',
+			});
+			defaultRole = await defaultRole.save();
+			
+			
+			defaultUser = User({
+				login: 'defaultLogin',
+				password: 'defaultPassword',
+				email: 'defaultEmail',
+				role: defaultRole._id.toString(),
+			});
+			defaultUser = await defaultUser.save();
+			
+		});
+
+        it('should return an object if request succeed', function (done) {
+            const req = {
+                query: {
+					email: 'defaultEmail',
+                }
+            }
+            const res = {
+                statusCode: 0,
+                jsonObject: {},
+                status: function (code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function (value) {
+                    this.jsonObject = value;
+                    return this;
+                }
+            };
+
+            UserController.findUserByEmail(req, res, () => { })
+				.then(result => {
+	                expect(res).to.have.property('statusCode', 200);
+	                expect(res.jsonObject).to.have.property('userId', defaultUser._id.toString());
+					expect(res.jsonObject).to.have.property('email', 'defaultEmail');
+	                done();
+	            })
+				.catch(err => {
+					console.log(err);
+					assert.fail(err);
+					done();
+				});
+        });
+	});
+
+
+
+
 });

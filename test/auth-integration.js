@@ -1,4 +1,4 @@
-const { expect, assert } = require('chai');
+const { expect } = require('chai');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -70,69 +70,6 @@ describe('Auth Integration', function () {
         });
 
 
-    });
-
-    describe('#updatePassword function', function () {
-        let registeredUser, userRole;
-        before(async () => {
-            await dbHandler.connect();
-        });
-
-        after(async () => {
-            await dbHandler.closeDatabase();
-        });
-
-        beforeEach(async () => {
-            userRole = await RoleServices.createRole({ name: 'role', label: 'roleLabel' });
-            registeredUser = await UserServices.createUser({
-                login: 'registeredUser',
-                password: 'password',
-                email: 'user@user.com',
-                role: userRole.roleId
-            });
-            sinon.stub(bcrypt, 'hash');
-        });
-
-        afterEach(async () => {
-            bcrypt.hash.restore();
-            await dbHandler.clearDatabase();
-        });
-
-        it('should update user password', function (done) {
-            const req = {
-                auth: {
-                    userId: registeredUser.userId
-                },
-                body: {
-                    password: 'newpassword'
-                }
-            };
-            const res = {
-                statusCode: 0,
-                jsonObject: {},
-                status: function (code) {
-                    this.statusCode = code;
-                    return this;
-                },
-                json: function (value) {
-                    this.jsonObject = value;
-                    return this;
-                }
-            };
-            bcrypt.hash.returns(new Promise((resolve, reject) => {
-                return resolve('encodedPassword');
-            }));
-            authcontroller.updatePassword(req, res, () => { }).then(result => {
-                expect(res).to.have.property('statusCode', 200);
-                expect(res.jsonObject).to.have.property('message', 'Password updated');
-                expect(result).to.be.true;
-                done();
-            })
-                .catch(err => {
-                    console.log(err);
-                })
-
-        });
     });
 
     describe('#isAuth function', function () {

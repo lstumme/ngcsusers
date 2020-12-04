@@ -53,18 +53,3 @@ exports.decodeToken = ({ token }) => {
         userId: decodedToken.userId.toString()
     };
 };
-
-exports.updatePassword = async ({ userId, password }) => {
-    return bcrypt.hash(password, 12)
-        .then(hashedPassword => {
-            return User.findOne({ _id: userId })
-                .then(user => {
-                    user.password = hashedPassword;
-                    return user.save().then(u => {
-                        return {
-                            userId: u._id.toString()
-                        };
-                    })
-                })
-        })
-};
