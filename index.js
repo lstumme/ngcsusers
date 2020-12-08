@@ -1,5 +1,5 @@
 module.exports = {
 	User: require('./model/user'),
-	UserController: require('./controllers/usercontroller'),
+	UserController: require('./controller/usercontroller'),
 	UserServices: require('./services/userservices'),
 };
